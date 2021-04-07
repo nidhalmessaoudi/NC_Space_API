@@ -1,0 +1,19 @@
+{
+  "name": "nc_space_api",
+  "version": "1.0.0",
+  "description": "NC_Space project Api",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "engines": {
+    "node": "14.15.5"
+  },
+  "author": "Nidhal Messaoudi",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.12.2"
+  }
+}
