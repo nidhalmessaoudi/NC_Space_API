@@ -1,10 +1,13 @@
 const mongoose = require("mongoose");
+const Features = require("./Features");
 
-class Article {
+class Article extends Features {
 
     #articleModel;
 
     constructor () {
+
+        super();
 
         const articleSchema = new mongoose.Schema({
             title: {
@@ -95,13 +98,17 @@ class Article {
             embeddedContent4: String,
             embeddedContent5: String,
             embeddedContent6: String,
+            tags: {
+                type: String,
+                default: "NC_Space tech"
+            },
             likes: Number,
             numberOfComments: {
                 type: Number,
                 default: 0
             },
             comments: [String]
-        });
+        }, { timestamps: true } );
 
         this.#articleModel = mongoose.model("Article", articleSchema);
 
@@ -111,16 +118,32 @@ class Article {
         return await this.#articleModel.create(article);
     }
 
-    async getAllArticles () {
-        return await this.#articleModel.find();
+    async getAllArticles (queryObj = {}) {
+        try {
+            this.filterArticles(this.#articleModel, queryObj);
+            this.sortArticles(queryObj);
+            this.limitFields(queryObj);
+            const skip = this.paginateArticles(queryObj);
+
+            if (queryObj.page) {
+                    const numArticles = await this.#articleModel.countDocuments();
+                
+                    if (skip >= numArticles) throw new Error("This page does NOT exists");
+            }
+
+            return this.query;
+            
+        } catch (err) {
+            throw err;
+        } 
     }
 
     async getArticleByID (id) {
-        return await this.#articleModel.findById(id);
-    }
-
-    async getArticlesByCategory (category) {
-        return await this.#articleModel.find({category});
+        try {
+            return this.#articleModel.findById(id);
+        } catch (err) {
+            throw err;
+        }
     }
 
     async updateArticle (id, newContent) {
