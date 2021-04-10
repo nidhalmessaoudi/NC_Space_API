@@ -90,3 +90,19 @@ exports.deleteArticle = async (req, res) => {
         });
     }
 };
+
+// exports.getArticleStats = async (req, res) => {
+//     try {
+//         const stats = await Article.aggregateStats(req.query);
+
+//         res.status(200).json({
+//             status: "success",
+//             data: stats
+//         });
+//     } catch (err) {
+//         res.status(404).json({
+//             status: "fail",
+//             Message: err
+//         });
+//     }
+// }

@@ -1,19 +1,19 @@
 class Features {
 
-    #copyObject (object) {
+    copyObject (object) {
         const copy = { ...object };
         
         return copy;
     }
     
-    filterArticles (model, queryObj) {
+    filter (model, queryObj) {
 
         if (!queryObj) {
             this.query = model.find();
 
             return;
         }
-        const queryObject = this.#copyObject(queryObj);
+        const queryObject = this.copyObject(queryObj);
 
         const excludedFields = ["page", "sort", "limit", "fields"];
     
@@ -28,7 +28,7 @@ class Features {
 
     }
 
-    sortArticles (queryObj) {
+    sort (queryObj) {
 
         if (!queryObj || !queryObj.sort) {
             this.query = this.query.sort("-createdAt");
@@ -36,7 +36,7 @@ class Features {
             return;
         }
 
-        const queryObject = this.#copyObject(queryObj);
+        const queryObject = this.copyObject(queryObj);
 
         const sortBy = queryObject.sort.split(",").join(" ");
 
@@ -44,23 +44,23 @@ class Features {
         
     }
 
-    limitFields (queryObj) {
+    limitFields (firstQuery, queryObj) {
 
         if (!queryObj || !queryObj.fields) {
-            this.query = this.query.select("-__v");
+            this.query = firstQuery.select("-__v");
 
             return; 
         } 
 
-        const queryObject = this.#copyObject(queryObj);
+        const queryObject = this.copyObject(queryObj);
 
         const fields = queryObject.fields.split(",").join(" ");
 
-        this.query = this.query.select(fields);
+        this.query = firstQuery.select(fields);
 
     }
 
-    paginateArticles (queryObj) {
+    paginate (queryObj) {
 
         const page = +queryObj.page || 1;
 

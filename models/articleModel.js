@@ -19,7 +19,6 @@ class Article extends Features {
             category: {
                 type: String,
                 required: [true, "An article must have a category"],
-                unique: true,
                 trim: true
             },
             summary: {
@@ -31,7 +30,10 @@ class Article extends Features {
                 required: [true, "An article must have an author"],
                 trim: true
             },
-            readTime: Number,
+            readingTime: {
+                type: Number,
+                default: 5
+            },
             coverImage: {
                 type: String,
                 required: [true, "An article must have a cover image"],
@@ -41,68 +43,18 @@ class Article extends Features {
                 type: Number,
                 required: [true, "An article must have a paragraph number"]
             },
-            paragraph1: {
-                header: {
-                    type: String,
-                    trim: true
-                },
-                body: {
-                    type: String,
-                    required: [true, "An article must have a paragraph1 body"]
-                },
-                image: String
+            contentMarkup: {
+                type: String,
+                required: [true, "An article must have a content markup"]
             },
-            paragraph2: {
-                header: {
-                    type: String,
-                    trim: true
-                },
-                body: String,
-                image: String
-            },
-            paragraph3: {
-                header: {
-                    type: String,
-                    trim: true
-                },
-                body: String,
-                image: String
-            },
-            paragraph4: {
-                header: {
-                    type: String,
-                    trim: true
-                },
-                body: String,
-                image: String
-            },
-            paragraph5: {
-                header: {
-                    type: String,
-                    trim: true
-                },
-                body: String,
-                image: String
-            },
-            paragraph6: {
-                header: {
-                    type: String,
-                    trim: true
-                },
-                body: String,
-                image: String
-            },
-            embeddedContent1: String,
-            embeddedContent2: String,
-            embeddedContent3: String,
-            embeddedContent4: String,
-            embeddedContent5: String,
-            embeddedContent6: String,
             tags: {
                 type: String,
                 default: "NC_Space tech"
             },
-            likes: Number,
+            likes: {
+                type: Number,
+                default: 0
+            },
             numberOfComments: {
                 type: Number,
                 default: 0
@@ -120,10 +72,10 @@ class Article extends Features {
 
     async getAllArticles (queryObj = {}) {
         try {
-            this.filterArticles(this.#articleModel, queryObj);
-            this.sortArticles(queryObj);
-            this.limitFields(queryObj);
-            const skip = this.paginateArticles(queryObj);
+            this.filter(this.#articleModel, queryObj);
+            this.sort(queryObj);
+            this.limitFields(this.query, queryObj);
+            const skip = this.paginate(queryObj);
 
             if (queryObj.page) {
                     const numArticles = await this.#articleModel.countDocuments();
@@ -138,16 +90,20 @@ class Article extends Features {
         } 
     }
 
-    async getArticleByID (id) {
+    async getArticleByID (id, queryObj = {}) {
         try {
-            return this.#articleModel.findById(id);
+
+            this.limitFields(this.#articleModel.findById(id), queryObj);
+
+            return this.query;
+
         } catch (err) {
             throw err;
         }
     }
 
     async updateArticle (id, newContent) {
-        return await this.#articleModel.findByIdAndUpdate(id, newContent, {
+        return this.#articleModel.findByIdAndUpdate(id, newContent, {
             new: true,
             runValidators: true
         });
@@ -156,6 +112,33 @@ class Article extends Features {
     async deleteArticle (id) {
         await this.#articleModel.findByIdAndDelete(id);
     }
+
+    // async aggregateStats (queryObj = {}) {
+    //     try {
+            
+    //         const queryObject = this.copyObject(queryObj);
+
+    //         return this.#articleModel.aggregate([
+    //             {
+    //                 $match: { paragraphs: { $gte: 2 } }
+    //             },
+    //             {
+    //                 $group: {
+    //                     _id: "$category",
+    //                     totalArticles: { $sum: 1 },
+    //                     totalLikes: { $sum: "$likes" },
+    //                     totalComments: { $sum: "$numberOfComments" },
+    //                     avgParagraphs: { $avg: "$paragraphs" },
+    //                     avgReadingTime: { $avg: "$readingTime" }
+    //                 }
+    //             }
+    //         ]);
+
+    //     } catch (err) {
+    //         throw err;
+    //     }
+
+    // }
 
 };
 

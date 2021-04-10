@@ -13,4 +13,7 @@ router.route("/:id")
     .patch(articleController.updateArticle)
     .delete(articleController.deleteArticle);
 
+// router.route("/stats")
+//     .get(articleController.getArticleStats);
+
 module.exports = router;
