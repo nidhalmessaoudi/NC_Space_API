@@ -70,8 +70,6 @@ class Features {
 
         this.query = this.query.skip(skip).limit(limit);
 
-        return skip;
-
     }
 }
 

@@ -1,108 +1,79 @@
-const Article = require("../models/articleModel");
+const Article = require("../models/Article");
+const AppError = require("../utils/AppError");
+const catchAsync = require("../utils/catchAsync");
 
-exports.getAllArticles = async (req, res) => {
-    try {
-        const articles = await Article.getAllArticles(req.query);
+exports.getAllArticles = catchAsync(async (req, res) => {
+    
+    const articles = await Article.getAllArticles(req.query);
 
-        res.status(200).json({
-            status: "success",
-            results: articles.length,
-            data: {
-                articles
-            }
-        });
-    } catch (err) {
-        console.log(err);
-        res.status(404).json({
-            status: "fail",
-            Message: err
-        });
+    res.status(200).json({
+        status: "success",
+        results: articles.length,
+        data: {
+            articles
+        }
+    });
+
+});
+
+exports.createArticle = catchAsync(async (req, res, next) => {
+
+    const newArticle = await Article.createArticle(req.body);
+
+    res.status(201).json({
+        status: "success",
+        data: {
+            article: newArticle
+        }
+    });
+
+});
+
+exports.getArticle = catchAsync(async (req, res, next) => {
+
+    const article = await Article.getArticleByID(req.params.id, req.query);
+
+    if (!article) {
+        return next(new AppError("No article found with that ID", 404));
     }
-};
 
-exports.createArticle = async (req, res) => {
-    try {
-        const newArticle = await Article.createArticle(req.body);
+    res.status(200).json({
+        status: "success",
+        data: {
+            article
+        }
+    });
+    
+});
 
-        res.status(201).json({
-            status: "success",
-            data: {
-                article: newArticle
-            }
-        });
-    } catch (err) {
-        res.status(404).json({
-            status: "fail",
-            Message: err
-        });
+exports.updateArticle = catchAsync(async (req, res, next) => {
+
+    const updatedArticle = await Article.updateArticle(req.params.id, req.body);
+
+    if (!updatedArticle) {
+        return next(new AppError("No article found with that ID", 404));
     }
-};
 
-exports.getArticle = async (req, res) => {
-    try {
-        const article = await Article.getArticleByID(req.params.id, req.query);
+    res.status(200).json({
+        status: "success",
+        data: {
+            article: updatedArticle
+        }
+    });
 
-        res.status(200).json({
-            status: "success",
-            data: {
-                article
-            }
-        });
-    } catch (err) {
-        console.log(err);
-        res.status(404).json({
-            status: "fail",
-            Message: err
-        });
+});
+
+exports.deleteArticle = catchAsync(async (req, res, next) => {
+
+    const deletedArticle = await Article.deleteArticle(req.params.id);
+
+    if (!deletedArticle) {
+        return next(new AppError("No article found with that ID", 404));
     }
-}
 
-exports.updateArticle = async (req, res) => {
-    try {
-
-        const updatedArticle = await Article.updateArticle(req.params.id, req.body);
-        res.status(200).json({
-            status: "success",
-            data: {
-                article: updatedArticle
-            }
-        });
-
-    } catch {
-        res.status(404).json({
-            status: "fail",
-            Message: err
-        });
-    }
-};
-
-exports.deleteArticle = async (req, res) => {
-    try {
-        await Article.deleteArticle(req.params.id);
-        res.status(204).json({
-            status: "success",
-            data: null
-        });
-    } catch (err) {
-        res.status(404).json({
-            status: "fail",
-            Message: err
-        });
-    }
-};
-
-// exports.getArticleStats = async (req, res) => {
-//     try {
-//         const stats = await Article.aggregateStats(req.query);
-
-//         res.status(200).json({
-//             status: "success",
-//             data: stats
-//         });
-//     } catch (err) {
-//         res.status(404).json({
-//             status: "fail",
-//             Message: err
-//         });
-//     }
-// }
+    res.status(204).json({
+        status: "success",
+        data: null
+    });
+    
+});

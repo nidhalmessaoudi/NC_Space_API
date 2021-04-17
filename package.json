@@ -4,7 +4,8 @@
   "description": "NC_Space project Api",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "debug": "ndb server.js"
   },
   "engines": {
     "node": "14.15.5"
@@ -14,6 +15,8 @@
   "dependencies": {
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "mongoose": "^5.12.2"
+    "mongoose": "^5.12.2",
+    "slugify": "^1.5.0",
+    "validator": "^13.5.2"
   }
 }
