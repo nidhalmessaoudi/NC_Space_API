@@ -1,8 +1,8 @@
-const mongoose = require("mongoose");
-const dotenv = require("dotenv");
+import mongoose from "mongoose";
+import dotenv from "dotenv";
 dotenv.config();
 
-const app = require("./app");
+import app from "./app.js";
 
 mongoose.connect(process.env.DB_HOST, {
     useNewUrlParser: true,

@@ -1,8 +1,8 @@
-const express = require("express");
+import express from "express";
+
+import * as articleController from "../controllers/articleController.js";
 
 const router = express.Router();
-
-const articleController = require("../controllers/articleController");
 
 router.route("/")
     .get(articleController.getAllArticles)
@@ -16,4 +16,4 @@ router.route("/:id")
 // router.route("/stats")
 //     .get(articleController.getArticleStats);
 
-module.exports = router;
+export default router;

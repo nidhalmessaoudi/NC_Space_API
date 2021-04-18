@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "NC_Space project Api",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "start": "nodemon server.js",
     "debug": "ndb server.js"

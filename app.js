@@ -1,8 +1,8 @@
-const express = require("express");
+import express from "express";
 
-const AppError = require("./utils/AppError");
-const globalErrorController = require("./controllers/errorController");
-const articleRouter = require("./routes/articleRoutes");
+import AppError from "./utils/AppError.js";
+import globalErrorController from "./controllers/errorController.js";
+import articleRouter from "./routes/articleRoutes.js";
 
 const app = express();
 
@@ -17,4 +17,4 @@ app.all("*",(req, res, next) => {
 
 app.use(globalErrorController);
 
-module.exports = app;
+export default app;

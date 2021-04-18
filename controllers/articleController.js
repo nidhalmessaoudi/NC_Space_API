@@ -1,8 +1,8 @@
-const Article = require("../models/Article");
-const AppError = require("../utils/AppError");
-const catchAsync = require("../utils/catchAsync");
+import Article from "../models/Article.js";
+import AppError from "../utils/AppError.js";
+import catchAsync from "../utils/catchAsync.js";
 
-exports.getAllArticles = catchAsync(async (req, res) => {
+export const getAllArticles = catchAsync(async (req, res) => {
     
     const articles = await Article.getAllArticles(req.query);
 
@@ -16,7 +16,7 @@ exports.getAllArticles = catchAsync(async (req, res) => {
 
 });
 
-exports.createArticle = catchAsync(async (req, res, next) => {
+export const createArticle = catchAsync(async (req, res, next) => {
 
     const newArticle = await Article.createArticle(req.body);
 
@@ -29,7 +29,7 @@ exports.createArticle = catchAsync(async (req, res, next) => {
 
 });
 
-exports.getArticle = catchAsync(async (req, res, next) => {
+export const getArticle = catchAsync(async (req, res, next) => {
 
     const article = await Article.getArticleByID(req.params.id, req.query);
 
@@ -46,7 +46,7 @@ exports.getArticle = catchAsync(async (req, res, next) => {
     
 });
 
-exports.updateArticle = catchAsync(async (req, res, next) => {
+export const updateArticle = catchAsync(async (req, res, next) => {
 
     const updatedArticle = await Article.updateArticle(req.params.id, req.body);
 
@@ -63,7 +63,7 @@ exports.updateArticle = catchAsync(async (req, res, next) => {
 
 });
 
-exports.deleteArticle = catchAsync(async (req, res, next) => {
+export const deleteArticle = catchAsync(async (req, res, next) => {
 
     const deletedArticle = await Article.deleteArticle(req.params.id);
 

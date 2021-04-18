@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
-const slugify = require("slugify");
-const Features = require("./Features");
+import mongoose from "mongoose";
+import slugify from "slugify";
+import Features from "./Features.js";
 
 class Article extends Features {
 
@@ -150,4 +150,4 @@ class Article extends Features {
 
 };
 
-module.exports = new Article();
+export default new Article();
