@@ -1,7 +1,13 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-dotenv.config();
 
+import rejectionHandler from "./utils/rejectionHandler.js";
+import uncaughtExcHandler from "./utils/uncaughtExcHandler.js";
+
+// UNCAUGHT EXCEPTIONS HANDLER
+uncaughtExcHandler();
+
+dotenv.config();
 import app from "./app.js";
 
 mongoose.connect(process.env.DB_HOST, {
@@ -14,6 +20,9 @@ mongoose.connect(process.env.DB_HOST, {
 
 const port = process.env.PORT || 3000;
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`Server has started on port ${port}...`);
 });
+
+// HANDLE UNHANDLED REJECTIONS
+rejectionHandler(server);

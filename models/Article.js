@@ -28,6 +28,7 @@ class Article extends Features {
             summary: {
                 type: String,
                 trim: true,
+                unique: true,
                 maxlength: [512, "An article summary must have equal or less than 512 characters"],
                 minlength: [102, "An article summary must have equal or more than 102 characters"]
             },
@@ -54,8 +55,9 @@ class Article extends Features {
             },
             contentMarkup: {
                 type: String,
+                unique: true,
                 required: [true, "An article must have a content markup"],
-                minlength: [102, "An article markup must have equal or less than 102 characters"]
+                minlength: [102, "An article markup must have equal or more than 102 characters"]
             },
             tags: {
                 type: String,
@@ -70,7 +72,7 @@ class Article extends Features {
                 default: 0
             },
             comments: [String],
-            secretTour: {
+            secretArticle: {
                 type: Boolean,
                 default: false
             }
