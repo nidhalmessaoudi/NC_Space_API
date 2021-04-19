@@ -86,7 +86,7 @@ class Article extends Features {
 
         // EXCLUDE SECRET ARTICLES MIDDLEWARE
         articleSchema.pre(/^find/, function (next) {
-            this.find({ secretTour: { $ne: true } });
+            this.find({ secretArticle: { $ne: true } });
             next();
         });
 
