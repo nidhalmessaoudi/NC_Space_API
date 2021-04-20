@@ -2,7 +2,7 @@ import Article from "../models/Article.js";
 import AppError from "../utils/AppError.js";
 import catchAsync from "../utils/catchAsync.js";
 
-export const getAllArticles = catchAsync(async (req, res) => {
+export const getAllArticles = catchAsync(async (req, res, next) => {
     
     const articles = await Article.getAllArticles(req.query);
 
@@ -76,4 +76,17 @@ export const deleteArticle = catchAsync(async (req, res, next) => {
         data: null
     });
     
+});
+
+export const getArticleStats = catchAsync(async (req, res, next) => {
+
+    const articleStats = await Article.getStats(req.query?.by);
+
+    res.status(200).json({
+        status: "success",
+        data: {
+            stats: articleStats
+        }
+    });
+
 });

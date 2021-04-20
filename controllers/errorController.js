@@ -18,6 +18,10 @@ const handleValidationErrorDB = err => {
     return new AppError(message, 400);
 }
 
+// AUTH ERRORS HANDLERS
+const handleJWTError = () => new AppError("Invalid token. Please try again!", 401);
+const handleJWTExpiredError = () => new AppError("This token has expired. Please try again!", 401);
+
 // ERROR HANDLERS BASED ON THE APP MODE
 const sendErrorDev = (err, res) => {
     res.status(err.statusCode).json({
@@ -63,9 +67,14 @@ export default (err, req, res, next) => {
 
         let error = { ...err };
 
+        // MONGOOSE ERRORS
         if (err.name === "CastError") error = handleCastErrorDB(err);
         if (err.code === 11000) error = handleDuplicateFieldsDB(err);
         if (err.name === "ValidationError") error = handleValidationErrorDB(err);
+
+        // AUTH ERRORS
+        if (err.name === "JsonWebTokenError") error = handleJWTError();
+        if (err.name === "TokenExpiredError") error = handleJWTExpiredError();
 
         sendErrorProd(error, res);
 

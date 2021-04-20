@@ -72,6 +72,10 @@ class Article extends Features {
                 default: 0
             },
             comments: [String],
+            views: {
+                type: Number,
+                default: 0
+            },
             secretArticle: {
                 type: Boolean,
                 default: false
@@ -128,27 +132,22 @@ class Article extends Features {
         return this.#articleModel.findByIdAndDelete(id);
     }
 
-    // aggregateStats (queryObj = {}) {
-            
-    //     const queryObject = this.copyObject(queryObj);
+    getStats (by) {
 
-    //     return this.#articleModel.aggregate([
-    //         {
-    //             $match: { paragraphs: { $gte: 2 } }
-    //         },
-    //         {
-    //             $group: {
-    //                 _id: "$category",
-    //                 totalArticles: { $sum: 1 },
-    //                 totalLikes: { $sum: "$likes" },
-    //                 totalComments: { $sum: "$numberOfComments" },
-    //                 avgParagraphs: { $avg: "$paragraphs" },
-    //                 avgReadingTime: { $avg: "$readingTime" }
-    //             }
-    //         }
-    //     ]);
+        return this.#articleModel.aggregate([
+            {
+                $group: {
+                    _id: `$${by}` || null,
+                    totalArticles: { $sum: 1 },
+                    totalLikes: { $sum: "$likes" },
+                    totalComments: { $sum: "$numberOfComments" },
+                    avgParagraphs: { $avg: "$paragraphs" },
+                    avgReadingTime: { $avg: "$readingTime" }
+                }
+            }
+        ]);
 
-    // }
+    }
 
 };
 

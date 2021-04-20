@@ -37,7 +37,8 @@ class User {
                     },
                     message: "Passwords are not the same!"
                 }
-            }
+            },
+            passwordChangedAt: Date
         });
 
         // HASHING PASSWORDS MIDDLEWARE
@@ -56,6 +57,21 @@ class User {
             return bcrypt.compare(candidatePassword, userPassword);
         }
 
+        userSchema.methods.isChangedAfter = function (JWTTimestamp) {
+
+            if (this.passwordChangedAt) {
+
+                const changedTimestamp = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
+
+                // CHANGED MEANS TRUE && NOT CHANGED MEANS FALSE
+                return JWTTimestamp < changedTimestamp;
+            }
+
+            // PASSWORD NOT CHANGED
+            return false;
+
+        }
+
         this.#userModel = mongoose.model("User", userSchema);
 
     }
@@ -71,6 +87,10 @@ class User {
 
     getUser (email) {
         return this.#userModel.findOne({ email }).select("+password");
+    }
+
+    getUserByID (id) {
+        return this.#userModel.findById(id);
     }
 
 }
