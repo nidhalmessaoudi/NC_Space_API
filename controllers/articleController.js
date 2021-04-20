@@ -31,11 +31,14 @@ export const createArticle = catchAsync(async (req, res, next) => {
 
 export const getArticle = catchAsync(async (req, res, next) => {
 
-    const article = await Article.getArticleByID(req.params.id, req.query);
+    let article = await Article.getArticleByID(req.params.id, req.query);
 
     if (!article) {
         return next(new AppError("No article found with that ID", 404));
     }
+
+    // UPDATE ARTICLE VIEWS
+    article = await Article.updateArticle(article._id, { views: article.views + 1 });
 
     res.status(200).json({
         status: "success",
@@ -44,6 +47,24 @@ export const getArticle = catchAsync(async (req, res, next) => {
         }
     });
     
+});
+
+export const getHottestArticles = catchAsync(async (req, res, next) => {
+
+    const hottestArticles = await Article.getAllArticles({
+        sort: "-views",
+        limit: 4,
+        fields: "title,likes,comments,views,category,summary,coverImage,createdAt"
+    });
+
+    res.status(200).json({
+        status: "success",
+        results: hottestArticles.length,
+        data: {
+            hottestArticles
+        }
+    });
+
 });
 
 export const updateArticle = catchAsync(async (req, res, next) => {
@@ -86,6 +107,21 @@ export const getArticleStats = catchAsync(async (req, res, next) => {
         status: "success",
         data: {
             stats: articleStats
+        }
+    });
+
+});
+
+export const getMongthlyStats = catchAsync(async (req, res, next) => {
+
+    const year = req.params.year;
+
+    const monthlyStats = await Article.getMonthlyStats(year);
+
+    res.status(200).json({
+        status: "success",
+        data: {
+            stats: monthlyStats
         }
     });
 

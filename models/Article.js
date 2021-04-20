@@ -139,11 +139,59 @@ class Article extends Features {
                 $group: {
                     _id: `$${by}` || null,
                     totalArticles: { $sum: 1 },
+                    totalViews: { $sum: "$views" },
                     totalLikes: { $sum: "$likes" },
                     totalComments: { $sum: "$numberOfComments" },
+                    paragraphs: { $sum: "$paragraphs" },
                     avgParagraphs: { $avg: "$paragraphs" },
                     avgReadingTime: { $avg: "$readingTime" }
                 }
+            }
+        ]);
+
+    }
+
+    getMonthlyStats (year) {
+
+        return this.#articleModel.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: new Date(`${year}-01-01`),
+                        $lte: new Date(`${year}-12-31`)
+                    }
+                },
+            },
+            {
+                $group: {
+                    _id: { $month: "$createdAt" },
+                    numArticles: { $sum: 1},
+                    paragraphs: { $sum: "$paragraphs" },
+                    avgParagraphs: { $avg: "$paragraphs" },
+                    avgReadingTime: { $avg: "$readingTime" },
+                    views: { $sum: "$views" },
+                    likes: { $sum: "$likes" },
+                    comments: { $sum: "$comments" },
+                    articles: { $push: "$title" }
+                }
+            },
+            {
+                $addFields: {
+                    month: "$_id"
+                }
+            },
+            {
+                $project: {
+                    _id: 0
+                }
+            },
+            {
+                $sort: {
+                    numArticles: -1
+                }
+            },
+            {
+                $limit: 12
             }
         ]);
 

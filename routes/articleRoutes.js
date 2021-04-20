@@ -9,6 +9,12 @@ router.route("/")
     .get(protect, articleController.getAllArticles)
     .post(articleController.createArticle);
 
+router.route("/hottest")
+    .get(articleController.getHottestArticles);
+
+router.route("/monthly-stats/:year")
+    .get(articleController.getMongthlyStats);
+
 router.route("/stats")
     .get(articleController.getArticleStats);
 
