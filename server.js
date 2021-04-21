@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import rejectionHandler from "./utils/rejectionHandler.js";
 import uncaughtExcHandler from "./utils/uncaughtExcHandler.js";
 
-// UNCAUGHT EXCEPTIONS HANDLER
+// HANDLE UNCAUGHT EXCEPTIONS
 uncaughtExcHandler();
 
 dotenv.config();

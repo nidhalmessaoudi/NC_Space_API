@@ -1,6 +1,10 @@
+import crypto from "crypto";
+
 import mongoose from "mongoose";
 import validator from "validator";
 import bcrypt from "bcryptjs";
+
+import encrypt from "../utils/encrypt.js";
 
 class User {
 
@@ -22,6 +26,11 @@ class User {
                 validate: [validator.isEmail, "Please provide a valid email!"]
             },
             photo: String,
+            role: {
+                type: String,
+                enum: ["user", "writer", "admin"],
+                default: "user"
+            },
             password: {
                 type: String,
                 required: [true, "Please provide a password"],
@@ -38,7 +47,9 @@ class User {
                     message: "Passwords are not the same!"
                 }
             },
-            passwordChangedAt: Date
+            passwordChangedAt: Date,
+            resetToken: String, 
+            resetTokenExpires: Date
         });
 
         // HASHING PASSWORDS MIDDLEWARE
@@ -49,6 +60,15 @@ class User {
             this.password = await bcrypt.hash(this.password, 12);
 
             this.passwordConfirm = undefined;
+
+            next();
+        });
+
+        userSchema.pre("save", function (next) {
+
+            if (!this.isModified("password") || this.isNew) return next();
+
+            this.passwordChangedAt = Date.now() - 1000;
 
             next();
         });
@@ -72,6 +92,18 @@ class User {
 
         }
 
+        userSchema.methods.createResetToken = function () {
+
+            const resetToken = crypto.randomBytes(32).toString("hex");
+
+            this.resetToken = encrypt(resetToken);
+
+            this.resetTokenExpires = Date.now() + 10 * 60 * 1000;
+
+            return resetToken;
+
+        }
+
         this.#userModel = mongoose.model("User", userSchema);
 
     }
@@ -80,12 +112,22 @@ class User {
         return this.#userModel.create({
             name: credentials.name,
             email: credentials.email,
+            photo: credentials.photo,
+            role: credentials.role,
             password: credentials.password,
             passwordConfirm: credentials.passwordConfirm
         });
     }
 
-    getUser (email) {
+    saveUser (user, options = {}) {
+        return user.save(options);
+    }
+
+    getUser (query) {
+        return this.#userModel.findOne(query);
+    }
+
+    getUserByEmail (email) {
         return this.#userModel.findOne({ email }).select("+password");
     }
 
