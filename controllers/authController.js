@@ -14,19 +14,23 @@ const signToken = id => {
     });
 }
 
+const createAndSendToken = (res, user, statusCode) => {
+    const token = signToken(user._id);
+
+    res.status(statusCode).json({
+        status: "success",
+        token,
+        data: {
+            user
+        }
+    });
+}
+
 export const signup = catchAsync(async (req, res, next) => {
 
     const newUser = await User.createUser(req.body);
 
-    const token = signToken(newUser._id);
-
-    res.status(201).json({
-        status: "success",
-        token,
-        data: {
-            user: newUser
-        }
-    });
+    createAndSendToken(res, newUser, 201);
 
 });
 
@@ -51,12 +55,7 @@ export const login = catchAsync(async (req, res, next) => {
     }
 
     // CHECK IF EVTHG IS OK, SEND TOKEN TO CLIENT
-    const token = signToken(user._id);
-
-    res.status(200).json({
-        status: "success",
-        token
-    });
+    createAndSendToken(res, user, 200);
 
 });
 
@@ -70,7 +69,7 @@ export const protect = catchAsync(async (req, res, next) => {
     }
 
     if (!token) {
-        return next(new AppError("You are not authorized to access this route. Please login first!", 401))
+        return next(new AppError("You are not authorized to access this route. Please login first!", 401));
     }
 
     // TOKEN VERIFICATION
@@ -169,11 +168,29 @@ export const resetPassword = catchAsync(async (req, res,  next) => {
     // UPDATE THE changedPasswordAt PROPERTY FOR THE USER
 
     // LOG THE USER IN, SEND JWT
-    const token = signToken(user._id);
+    createAndSendToken(res, user, 200);
 
-    res.status(200).json({
-        status: "success",
-        token
-    });
+});
+
+export const updatePassword = catchAsync(async (req, res, next) => {
+
+    // GET USER FROM COLLECTION
+    const user = await User.getUserByID(req.user._id, "+password");
+
+    // CHECK IF THE USER CURRENT PASSWORD IS CORRECT
+    if (!(await user.correctPassword(req.body.currentPassword, user.password))) {
+        return next(new AppError("Your current password is wrong!", 401));
+    }
+
+    // IF SO => UPDATE THE PASSWORD
+    const { newPassword, newPasswordConfirm } = req.body;
+
+    user.password = newPassword;
+    user.passwordConfirm = newPasswordConfirm;
+
+    await User.saveUser(user);
+    
+    // LOG USER IN, SEND JWT
+    createAndSendToken(res, user, 200);
 
 });

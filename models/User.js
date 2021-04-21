@@ -49,7 +49,12 @@ class User {
             },
             passwordChangedAt: Date,
             resetToken: String, 
-            resetTokenExpires: Date
+            resetTokenExpires: Date,
+            active: {
+                type: Boolean,
+                default: true,
+                select: false
+            }
         });
 
         // HASHING PASSWORDS MIDDLEWARE
@@ -71,6 +76,14 @@ class User {
             this.passwordChangedAt = Date.now() - 1000;
 
             next();
+        });
+
+        userSchema.pre(/^find/, function (next) {
+
+            this.find({ active: { $ne: false } });
+
+            next();
+
         });
 
         userSchema.methods.correctPassword = function (candidatePassword, userPassword) {
@@ -108,6 +121,10 @@ class User {
 
     }
 
+    getAllUsers (queryObj = {}) {
+        return this.#userModel.find(queryObj);
+    }
+
     createUser (credentials) {
         return this.#userModel.create({
             name: credentials.name,
@@ -131,8 +148,12 @@ class User {
         return this.#userModel.findOne({ email }).select("+password");
     }
 
-    getUserByID (id) {
-        return this.#userModel.findById(id);
+    getUserByID (id, options = {}) {
+        return this.#userModel.findById(id).select(options);
+    }
+
+    updateUserByID (id, data, options = {}) {
+        return this.#userModel.findByIdAndUpdate(id, data, options);
     }
 
 }
