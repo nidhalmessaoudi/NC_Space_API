@@ -1,76 +1,69 @@
 class Features {
+  copyObject(object) {
+    const copy = { ...object };
 
-    copyObject (object) {
-        const copy = { ...object };
-        
-        return copy;
+    return copy;
+  }
+
+  filter(model, queryObj) {
+    if (!queryObj) {
+      this.query = model.find();
+
+      return;
     }
-    
-    filter (model, queryObj) {
+    const queryObject = this.copyObject(queryObj);
 
-        if (!queryObj) {
-            this.query = model.find();
+    const excludedFields = ["page", "sort", "limit", "fields"];
 
-            return;
-        }
-        const queryObject = this.copyObject(queryObj);
+    excludedFields.forEach((field) => {
+      delete queryObject[field];
+    });
 
-        const excludedFields = ["page", "sort", "limit", "fields"];
-    
-        excludedFields.forEach(field => {
-                delete queryObject[field];
-        });
-    
-        const queryStr = JSON.stringify(queryObject)
-                .replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
+    const queryStr = JSON.stringify(queryObject).replace(
+      /\b(gte|gt|lte|lt)\b/g,
+      (match) => `$${match}`
+    );
 
-        this.query = model.find(JSON.parse(queryStr));
+    this.query = model.find(JSON.parse(queryStr));
+  }
 
-    }
+  sort(queryObj) {
+    if (!queryObj || !queryObj.sort) {
+      this.query = this.query.sort("-createdAt");
 
-    sort (queryObj) {
-
-        if (!queryObj || !queryObj.sort) {
-            this.query = this.query.sort("-createdAt");
-
-            return;
-        }
-
-        const queryObject = this.copyObject(queryObj);
-
-        const sortBy = queryObject.sort.split(",").join(" ");
-
-        this.query = this.query.sort(sortBy);
-        
+      return;
     }
 
-    limitFields (firstQuery, queryObj) {
+    const queryObject = this.copyObject(queryObj);
 
-        if (!queryObj || !queryObj.fields) {
-            this.query = firstQuery.select("-__v");
+    const sortBy = queryObject.sort.split(",").join(" ");
 
-            return; 
-        } 
+    this.query = this.query.sort(sortBy);
+  }
 
-        const queryObject = this.copyObject(queryObj);
+  limitFields(firstQuery, queryObj) {
+    if (!queryObj || !queryObj.fields) {
+      this.query = firstQuery.select("-__v");
 
-        const fields = queryObject.fields.split(",").join(" ");
-
-        this.query = firstQuery.select(fields);
-
+      return;
     }
 
-    paginate (queryObj) {
+    const queryObject = this.copyObject(queryObj);
 
-        const page = +queryObj.page || 1;
+    const fields = queryObject.fields.split(",").join(" ");
 
-        const limit = +queryObj.limit || 100;
+    this.query = firstQuery.select(fields);
+  }
 
-        const skip  = (page - 1) * limit;
+  paginate(queryObj) {
+    const page = +queryObj.page || 1;
 
-        this.query = this.query.skip(skip).limit(limit);
+    const limit = +queryObj.limit || 100;
 
-    }
+    const skip = (page - 1) * limit;
+
+    this.query = this.query.skip(skip).limit(limit);
+  }
 }
 
 export default Features;

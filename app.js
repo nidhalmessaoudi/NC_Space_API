@@ -16,9 +16,9 @@ const app = express();
 app.use(helmet());
 
 const limiter = rateLimit({
-    max: 100,
-    windowMs: 10 * 60 * 1000,
-    message: "Too many requests from this IP, please try again in 10 mins!"
+  max: 100,
+  windowMs: 10 * 60 * 1000,
+  message: "Too many requests from this IP, please try again in 10 mins!",
 });
 
 app.use("/api", limiter);
@@ -32,16 +32,18 @@ app.use(mongoSanitize());
 app.use(xss());
 
 // PREVENT PARAMTER POLLUTION
-app.use(hpp({
+app.use(
+  hpp({
     whitelist: [
-        "readingTime",
-        "likes",
-        "views",
-        "numberOfComments",
-        "paragraphs",
-        "category"
-    ]
-}));
+      "readingTime",
+      "likes",
+      "views",
+      "numberOfComments",
+      "paragraphs",
+      "category",
+    ],
+  })
+);
 
 // ARTICLE ROUTES
 app.use("/api/v1/articles", articleRouter);
@@ -49,8 +51,8 @@ app.use("/api/v1/articles", articleRouter);
 // USER ROUTES
 app.use("/api/v1/users", userRouter);
 
-app.all("*",(req, res, next) => {
-    next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+app.all("*", (req, res, next) => {
+  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
 app.use(globalErrorController);

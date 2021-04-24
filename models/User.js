@@ -7,155 +7,164 @@ import bcrypt from "bcryptjs";
 import encrypt from "../utils/encrypt.js";
 
 class User {
+  #userModel;
 
-    #userModel;
+  constructor() {
+    const userSchema = new mongoose.Schema({
+      name: {
+        type: String,
+        required: [true, "Please tell us your name!"],
+      },
+      email: {
+        type: String,
+        required: [true, "Please provide your email!"],
+        unique: true,
+        lowercase: true,
+        trim: true,
+        validate: [validator.isEmail, "Please provide a valid email!"],
+      },
+      photo: String,
+      role: {
+        type: String,
+        enum: ["user", "writer", "admin"],
+        default: "user",
+      },
+      password: {
+        type: String,
+        required: [true, "Please provide a password"],
+        minlength: [8, "Password must be equal or more than 8 characters!"],
+        select: false,
+      },
+      passwordConfirm: {
+        type: String,
+        required: [true, "Please confirm your password"],
+        validate: {
+          validator: function (el) {
+            return el === this.password;
+          },
+          message: "Passwords are not the same!",
+        },
+      },
+      verified: {
+        type: Boolean,
+        default: false,
+      },
+      verifyToken: String,
+      verifyTokenExpires: Date,
+      passwordChangedAt: Date,
+      resetToken: String,
+      resetTokenExpires: Date,
+      active: {
+        type: Boolean,
+        default: true,
+        select: false,
+      },
+    });
 
-    constructor () {
+    // HASHING PASSWORDS MIDDLEWARE
+    userSchema.pre("save", async function (next) {
+      if (!this.isModified("password")) return next();
 
-        const userSchema = new mongoose.Schema({
-            name: {
-                type: String,
-                required: [true, "Please tell us your name!"]
-            },
-            email: {
-                type: String,
-                required: [true, "Please provide your email!"],
-                unique: true,
-                lowercase: true,
-                trim: true,
-                validate: [validator.isEmail, "Please provide a valid email!"]
-            },
-            photo: String,
-            role: {
-                type: String,
-                enum: ["user", "writer", "admin"],
-                default: "user"
-            },
-            password: {
-                type: String,
-                required: [true, "Please provide a password"],
-                minlength: [8, "Password must be equal or more than 8 characters!"],
-                select: false
-            },
-            passwordConfirm: {
-                type: String,
-                required: [true, "Please confirm your password"],
-                validate: {
-                    validator: function (el) {
-                        return el === this.password;
-                    },
-                    message: "Passwords are not the same!"
-                }
-            },
-            passwordChangedAt: Date,
-            resetToken: String, 
-            resetTokenExpires: Date,
-            active: {
-                type: Boolean,
-                default: true,
-                select: false
-            }
-        });
+      this.password = await bcrypt.hash(this.password, 12);
 
-        // HASHING PASSWORDS MIDDLEWARE
-        userSchema.pre("save", async function (next) {
+      this.passwordConfirm = undefined;
 
-            if (!this.isModified("password")) return next();
+      next();
+    });
 
-            this.password = await bcrypt.hash(this.password, 12);
+    userSchema.pre("save", function (next) {
+      if (!this.isModified("password") || this.isNew) return next();
 
-            this.passwordConfirm = undefined;
+      this.passwordChangedAt = Date.now() - 1000;
 
-            next();
-        });
+      next();
+    });
 
-        userSchema.pre("save", function (next) {
+    userSchema.pre(/^find/, function (next) {
+      this.find({ active: { $ne: false } });
 
-            if (!this.isModified("password") || this.isNew) return next();
+      next();
+    });
 
-            this.passwordChangedAt = Date.now() - 1000;
+    userSchema.methods.correctPassword = function (
+      candidatePassword,
+      userPassword
+    ) {
+      return bcrypt.compare(candidatePassword, userPassword);
+    };
 
-            next();
-        });
+    userSchema.methods.isChangedAfter = function (JWTTimestamp) {
+      if (this.passwordChangedAt) {
+        const changedTimestamp = parseInt(
+          this.passwordChangedAt.getTime() / 1000,
+          10
+        );
 
-        userSchema.pre(/^find/, function (next) {
+        // CHANGED MEANS TRUE && NOT CHANGED MEANS FALSE
+        return JWTTimestamp < changedTimestamp;
+      }
 
-            this.find({ active: { $ne: false } });
+      // PASSWORD NOT CHANGED
+      return false;
+    };
 
-            next();
+    userSchema.methods.createToken = function (expiresTime) {
+      if (expiresTime < 10) {
+        const verifyToken = crypto.randomBytes(32).toString("hex");
 
-        });
+        this.verifyToken = encrypt(verifyToken);
 
-        userSchema.methods.correctPassword = function (candidatePassword, userPassword) {
-            return bcrypt.compare(candidatePassword, userPassword);
-        }
+        this.verifyTokenExpires = Date.now() + expiresTime * 60 * 1000;
 
-        userSchema.methods.isChangedAfter = function (JWTTimestamp) {
+        return verifyToken;
+      } else {
+        const resetToken = crypto.randomBytes(32).toString("hex");
 
-            if (this.passwordChangedAt) {
+        this.resetToken = encrypt(resetToken);
 
-                const changedTimestamp = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
+        this.resetTokenExpires = Date.now() + expiresTime * 60 * 1000;
 
-                // CHANGED MEANS TRUE && NOT CHANGED MEANS FALSE
-                return JWTTimestamp < changedTimestamp;
-            }
+        return resetToken;
+      }
+    };
 
-            // PASSWORD NOT CHANGED
-            return false;
+    this.#userModel = mongoose.model("User", userSchema);
+  }
 
-        }
+  getAllUsers(queryObj = {}) {
+    return this.#userModel.find(queryObj);
+  }
 
-        userSchema.methods.createResetToken = function () {
+  createUser(credentials) {
+    return this.#userModel.create({
+      name: credentials.name,
+      email: credentials.email,
+      photo: credentials.photo,
+      role: credentials.role,
+      password: credentials.password,
+      passwordConfirm: credentials.passwordConfirm,
+    });
+  }
 
-            const resetToken = crypto.randomBytes(32).toString("hex");
+  saveUser(user, options = {}) {
+    return user.save(options);
+  }
 
-            this.resetToken = encrypt(resetToken);
+  getUser(query) {
+    return this.#userModel.findOne(query);
+  }
 
-            this.resetTokenExpires = Date.now() + 10 * 60 * 1000;
+  getUserByEmail(email) {
+    return this.#userModel.findOne({ email }).select("+password");
+  }
 
-            return resetToken;
+  getUserByID(id, options = {}) {
+    return this.#userModel.findById(id).select(options);
+  }
 
-        }
-
-        this.#userModel = mongoose.model("User", userSchema);
-
-    }
-
-    getAllUsers (queryObj = {}) {
-        return this.#userModel.find(queryObj);
-    }
-
-    createUser (credentials) {
-        return this.#userModel.create({
-            name: credentials.name,
-            email: credentials.email,
-            photo: credentials.photo,
-            role: credentials.role,
-            password: credentials.password,
-            passwordConfirm: credentials.passwordConfirm
-        });
-    }
-
-    saveUser (user, options = {}) {
-        return user.save(options);
-    }
-
-    getUser (query) {
-        return this.#userModel.findOne(query);
-    }
-
-    getUserByEmail (email) {
-        return this.#userModel.findOne({ email }).select("+password");
-    }
-
-    getUserByID (id, options = {}) {
-        return this.#userModel.findById(id).select(options);
-    }
-
-    updateUserByID (id, data, options = {}) {
-        return this.#userModel.findByIdAndUpdate(id, data, options);
-    }
-
+  updateUserByID(id, data, options = {}) {
+    return this.#userModel.findByIdAndUpdate(id, data, options);
+  }
 }
 
 export default new User();

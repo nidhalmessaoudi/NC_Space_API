@@ -10,18 +10,19 @@ uncaughtExcHandler();
 dotenv.config();
 import app from "./app.js";
 
-mongoose.connect(process.env.DB_HOST, {
+mongoose
+  .connect(process.env.DB_HOST, {
     useNewUrlParser: true,
     useCreateIndex: true,
     useFindAndModify: false,
-    useUnifiedTopology: true
-}).then(() => console.log("Successfully connected to database!"));
-
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("Successfully connected to database!"));
 
 const port = process.env.PORT || 3000;
 
 const server = app.listen(port, () => {
-    console.log(`Server has started on port ${port}...`);
+  console.log(`Server has started on port ${port}...`);
 });
 
 // HANDLE UNHANDLED REJECTIONS
