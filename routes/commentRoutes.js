@@ -3,7 +3,7 @@ import express from "express";
 import * as commentController from "../controllers/commentController.js";
 import { protect } from "../controllers/authController.js";
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 router
   .route("/")

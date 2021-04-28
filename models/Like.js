@@ -25,7 +25,7 @@ class Like {
     );
 
     // POPULATE AUTHOR
-    commentSchema.pre(/^find/, function (next) {
+    likeSchema.pre(/^find/, function (next) {
       this.populate({
         path: "user",
         select: "name photo",
@@ -43,6 +43,14 @@ class Like {
 
   createLike(like) {
     return this.#likeModel.create(like);
+  }
+
+  getLike(queryObj = {}) {
+    return this.#likeModel.findOne(queryObj);
+  }
+
+  deleteLikeById(id) {
+    return this.#likeModel.findByIdAndDelete(id);
   }
 }
 

@@ -29,7 +29,7 @@ export const getArticle = catchAsync(async (req, res, next) => {
   let article = await Article.getArticleByID(
     req.params.id,
     req.query,
-    "comments"
+    "comments likes"
   );
 
   if (!article) {

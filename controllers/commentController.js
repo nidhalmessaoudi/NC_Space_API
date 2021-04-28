@@ -14,9 +14,13 @@ export const getAllComments = catchAsync(async (req, res, next) => {
 });
 
 export const createComment = catchAsync(async (req, res, next) => {
+  // ALLOW NESTED ROUTES
+  if (!req.body.article) req.body.article = req.params.articleId;
+  if (!req.body.author) req.body.author = req.user.id;
+
   const newComment = await Comment.createComment(req.body);
 
-  res.status(200).json({
+  res.status(201).json({
     status: "success",
     data: {
       comment: newComment,

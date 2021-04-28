@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import slugify from "slugify";
+
 import Features from "./Features.js";
+import User from "./User.js";
 
 class Article extends Features {
   #articleModel;
@@ -12,22 +14,22 @@ class Article extends Features {
       {
         title: {
           type: String,
-          required: [true, "An article must have a title"],
+          required: [true, "An article must have a title!"],
           unique: true,
           trim: true,
           maxlength: [
             102,
-            "An article title must have equal or less than 102 characters",
+            "An article title must have equal or less than 102 characters!",
           ],
           minlength: [
             12,
-            "An article title must have equal or more than 12 characters",
+            "An article title must have equal or more than 12 characters!",
           ],
         },
         slug: String,
         category: {
           type: String,
-          required: [true, "An article must have a category"],
+          required: [true, "An article must have a category!"],
           trim: true,
         },
         summary: {
@@ -36,25 +38,16 @@ class Article extends Features {
           unique: true,
           maxlength: [
             512,
-            "An article summary must have equal or less than 512 characters",
+            "An article summary must have equal or less than 512 characters!",
           ],
           minlength: [
-            102,
-            "An article summary must have equal or more than 102 characters",
+            12,
+            "An article summary must have equal or more than 62 characters!",
           ],
         },
         author: {
-          type: String,
-          required: [true, "An article must have an author"],
-          trim: true,
-          maxlength: [
-            32,
-            "An article author must have equal or less than 512 characters",
-          ],
-          minlength: [
-            4,
-            "An article author must have equal or more than 102 characters",
-          ],
+          type: Array,
+          required: [true, "An article must have an author!"],
         },
         readingTime: {
           type: Number,
@@ -62,21 +55,21 @@ class Article extends Features {
         },
         coverImage: {
           type: String,
-          required: [true, "An article must have a cover image"],
+          required: [true, "An article must have a cover image!"],
           trim: true,
         },
         paragraphs: {
           type: Number,
-          required: [true, "An article must have a paragraph number"],
-          min: [1, "An article must have one or more paragraphs"],
+          required: [true, "An article must have a paragraph number!"],
+          min: [1, "An article must have one or more paragraphs!"],
         },
-        contentMarkup: {
+        body: {
           type: String,
           unique: true,
-          required: [true, "An article must have a content markup"],
+          required: [true, "An article must have a body!"],
           minlength: [
             102,
-            "An article markup must have equal or more than 102 characters",
+            "An article body must have equal or more than 102 characters!",
           ],
         },
         tags: {
@@ -119,6 +112,12 @@ class Article extends Features {
       ref: "Comment",
       foreignField: "article",
       localField: "_id",
+    });
+
+    // EMBEDDING AUTHOR OBJECT
+    articleSchema.pre("save", async function (next) {
+      this.author = await User.getUserByID(this.author[0], "name photo");
+      next();
     });
 
     // CREATE SLUG MIDDLEWARE

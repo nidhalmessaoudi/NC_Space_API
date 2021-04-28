@@ -10,6 +10,7 @@ import globalErrorController from "./controllers/errorController.js";
 import articleRouter from "./routes/articleRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 import commentRouter from "./routes/commentRoutes.js";
+import likeRouter from "./routes/likeRoutes.js";
 
 const app = express();
 
@@ -52,8 +53,11 @@ app.use("/api/v1/articles", articleRouter);
 // USER ROUTES
 app.use("/api/v1/users", userRouter);
 
-// REVIEW ROUTES
+// COMMENT ROUTES
 app.use("/api/v1/comments", commentRouter);
+
+// LIKE ROUTES
+app.use("/api/v1/likes", likeRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
