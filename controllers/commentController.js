@@ -1,8 +1,13 @@
 import Comment from "../models/Comment.js";
 import catchAsync from "../utils/catchAsync.js";
+import * as handlerFactory from "./handlerFactory.js";
 
 export const getAllComments = catchAsync(async (req, res, next) => {
-  const comments = await Comment.getAllComments();
+  let filter = {};
+
+  if (req.params.articleId) filter = { article: req.params.articleId };
+
+  const comments = await Comment.getAll(filter);
 
   res.status(200).json({
     status: "success",
@@ -18,7 +23,7 @@ export const createComment = catchAsync(async (req, res, next) => {
   if (!req.body.article) req.body.article = req.params.articleId;
   if (!req.body.author) req.body.author = req.user.id;
 
-  const newComment = await Comment.createComment(req.body);
+  const newComment = await Comment.create(req.body);
 
   res.status(201).json({
     status: "success",
@@ -27,3 +32,5 @@ export const createComment = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+export const deleteComment = handlerFactory.deleteOne(Comment);

@@ -8,6 +8,6 @@ const router = express.Router({ mergeParams: true });
 router
   .route("/")
   .get(protect, likeController.getAllLikes)
-  .post(protect, likeController.createLike);
+  .post(protect, likeController.createOrDeleteLike);
 
 export default router;

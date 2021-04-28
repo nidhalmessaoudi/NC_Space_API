@@ -43,12 +43,20 @@ class Comment {
     this.#commentModel = mongoose.model("Comment", commentSchema);
   }
 
-  getAllComments(options = {}) {
+  getAll(options = {}) {
     return this.#commentModel.find(options);
   }
 
-  createComment(comment) {
+  create(comment) {
     return this.#commentModel.create(comment);
+  }
+
+  delete(id) {
+    return this.#commentModel.findByIdAndDelete(id);
+  }
+
+  name() {
+    return "comment";
   }
 }
 

@@ -116,7 +116,7 @@ class Article extends Features {
 
     // EMBEDDING AUTHOR OBJECT
     articleSchema.pre("save", async function (next) {
-      this.author = await User.getUserByID(this.author[0], "name photo");
+      this.author = await User.getById(this.author[0], "name photo");
       next();
     });
 
@@ -135,11 +135,7 @@ class Article extends Features {
     this.#articleModel = mongoose.model("Article", articleSchema);
   }
 
-  createArticle(article) {
-    return this.#articleModel.create(article);
-  }
-
-  getAllArticles(queryObj = {}) {
+  getAll(queryObj = {}) {
     this.filter(this.#articleModel, queryObj);
     this.sort(queryObj);
     this.limitFields(this.query, queryObj);
@@ -148,7 +144,11 @@ class Article extends Features {
     return this.query;
   }
 
-  getArticleByID(id, queryObj = {}, populateFields = "") {
+  create(article) {
+    return this.#articleModel.create(article);
+  }
+
+  get(id, queryObj = {}, populateFields = "") {
     this.limitFields(
       this.#articleModel.findById(id).populate(populateFields),
       queryObj
@@ -157,14 +157,18 @@ class Article extends Features {
     return this.query;
   }
 
-  updateArticle(id, newContent) {
+  save(article, options = {}) {
+    return article.save(options);
+  }
+
+  update(id, newContent) {
     return this.#articleModel.findByIdAndUpdate(id, newContent, {
       new: true,
       runValidators: true,
     });
   }
 
-  deleteArticle(id) {
+  delete(id) {
     return this.#articleModel.findByIdAndDelete(id);
   }
 
@@ -227,6 +231,10 @@ class Article extends Features {
         $limit: 12,
       },
     ]);
+  }
+
+  name() {
+    return "article";
   }
 }
 

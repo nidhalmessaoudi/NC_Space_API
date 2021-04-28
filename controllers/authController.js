@@ -16,7 +16,7 @@ const signToken = (id) => {
 
 const generateRandomToken = async (user, expireTime) => {
   const randomToken = await user.createToken(expireTime);
-  await User.saveUser(user, { validateBeforeSave: false });
+  await User.save(user, { validateBeforeSave: false });
 
   return randomToken;
 };
@@ -32,11 +32,11 @@ const sendRandomToken = async (user, subject, message, next) => {
     if (user.verifyToken) {
       user.verifyToken = undefined;
       user.verifyTokenExpires = undefined;
-      await User.saveUser(user, { validateBeforeSave: false });
+      await User.save(user, { validateBeforeSave: false });
     } else {
       user.resetToken = undefined;
       user.resetTokenExpires = undefined;
-      await User.saveUser(user, { validateBeforeSave: false });
+      await User.save(user, { validateBeforeSave: false });
     }
 
     return next(
@@ -81,7 +81,7 @@ const checkUserEmailAndPassword = async (req, next) => {
   }
 
   // CHECK IF USER EXISTS => PASSWORD IS CORRECT ✔
-  const user = await User.getUserByEmail(email);
+  const user = await User.getByEmail(email);
 
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError("Incorrect email or password", 401));
@@ -91,7 +91,7 @@ const checkUserEmailAndPassword = async (req, next) => {
 };
 
 export const signup = catchAsync(async (req, res, next) => {
-  const newUser = await User.createUser(req.body);
+  const newUser = await User.create(req.body);
 
   // GENERATE RANDOM VERIFY TOKEN
   const verifyToken = await generateRandomToken(newUser, 5);
@@ -149,7 +149,7 @@ export const verifyEmail = catchAsync(async (req, res, next) => {
   // GET USER BASED ON THE TOKEN
   const hashedToken = encrypt(req.params.token);
 
-  const user = await User.getUser({
+  const user = await User.get({
     verifyToken: hashedToken,
     verifyTokenExpires: { $gt: Date.now() },
   });
@@ -164,7 +164,7 @@ export const verifyEmail = catchAsync(async (req, res, next) => {
   user.verifyToken = undefined;
   user.verifyTokenExpires = undefined;
 
-  await User.saveUser(user, { validateBeforeSave: false });
+  await User.save(user, { validateBeforeSave: false });
 
   // LOG THE USER IN, SEND JWT
   createAndSendToken(res, user, 200);
@@ -201,7 +201,7 @@ export const protect = catchAsync(async (req, res, next) => {
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
   // CHECK IF USER EXISTS
-  const currentUser = await User.getUserByID(decoded.id);
+  const currentUser = await User.getById(decoded.id);
 
   if (!currentUser)
     return next(
@@ -234,7 +234,7 @@ export const restrictTo = (req, res, next) => {
 
 export const forgotPassword = catchAsync(async (req, res, next) => {
   // GET USER BASED ON POSTED EMAIL
-  const user = await User.getUserByEmail(req.body.email);
+  const user = await User.getByEmail(req.body.email);
 
   if (!user)
     return next(new AppError("There is no user with this email adress!", 404));
@@ -264,7 +264,7 @@ export const resetPassword = catchAsync(async (req, res, next) => {
   // GET USER BASED ON THE TOKEN
   const hashedToken = encrypt(req.params.token);
 
-  const user = await User.getUser({
+  const user = await User.get({
     resetToken: hashedToken,
     resetTokenExpires: { $gt: Date.now() },
   });
@@ -277,7 +277,7 @@ export const resetPassword = catchAsync(async (req, res, next) => {
   user.resetToken = undefined;
   user.resetTokenExpires = undefined;
 
-  await User.saveUser(user);
+  await User.save(user);
 
   // UPDATE THE changedPasswordAt PROPERTY FOR THE USER
 
@@ -287,7 +287,7 @@ export const resetPassword = catchAsync(async (req, res, next) => {
 
 export const updatePassword = catchAsync(async (req, res, next) => {
   // GET USER FROM COLLECTION
-  const user = await User.getUserByID(req.user._id, "+password");
+  const user = await User.getById(req.user._id, "+password");
 
   // CHECK IF THE USER CURRENT PASSWORD IS CORRECT
   if (!(await user.correctPassword(req.body.currentPassword, user.password))) {
@@ -300,7 +300,7 @@ export const updatePassword = catchAsync(async (req, res, next) => {
   user.password = newPassword;
   user.passwordConfirm = newPasswordConfirm;
 
-  await User.saveUser(user);
+  await User.save(user);
 
   // LOG USER IN, SEND JWT
   createAndSendToken(res, user, 200);

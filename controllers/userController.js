@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import catchAsync from "../utils/catchAsync.js";
 import AppError from "../utils/AppError.js";
+import * as handlerFactory from "./handlerFactory.js";
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -13,7 +14,7 @@ const filterObj = (obj, ...allowedFields) => {
 };
 
 export const getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await User.getAllUsers();
+  const users = await User.getAll();
 
   res.status(200).json({
     status: "success",
@@ -39,7 +40,7 @@ export const updateMe = catchAsync(async (req, res, next) => {
   const filteredBody = filterObj(req.body, "name", "email");
 
   // UPDATE USER DOCUMENT
-  const updatedUser = await User.updateUserByID(req.user.id, filteredBody, {
+  const updatedUser = await User.update(req.user.id, filteredBody, {
     new: true,
     runValidators: true,
   });
@@ -53,10 +54,33 @@ export const updateMe = catchAsync(async (req, res, next) => {
 });
 
 export const deleteMe = catchAsync(async (req, res, next) => {
-  await User.updateUserByID(req.user.id, { active: false });
+  await User.update(req.user.id, { active: false });
 
   res.status(204).json({
     status: "success",
     data: null,
   });
 });
+
+export const createUser = (req, res, next) => {
+  res.status(500).json({
+    status: "error",
+    message: "This route is not yet defined!",
+  });
+};
+
+export const getUser = (req, res, next) => {
+  res.status(500).json({
+    status: "error",
+    message: "This route is not yet defined!",
+  });
+};
+
+export const updateUser = (req, res, next) => {
+  res.status(500).json({
+    status: "error",
+    message: "This route is not yet defined!",
+  });
+};
+
+export const deleteUser = handlerFactory.deleteOne(User);

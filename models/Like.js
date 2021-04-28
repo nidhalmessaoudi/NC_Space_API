@@ -37,20 +37,24 @@ class Like {
     this.#likeModel = mongoose.model("Like", likeSchema);
   }
 
-  getAllLikes() {
-    return this.#likeModel.find();
+  getAll(options) {
+    return this.#likeModel.find(options);
   }
 
-  createLike(like) {
+  create(like) {
     return this.#likeModel.create(like);
   }
 
-  getLike(queryObj = {}) {
+  get(queryObj = {}) {
     return this.#likeModel.findOne(queryObj);
   }
 
-  deleteLikeById(id) {
+  delete(id) {
     return this.#likeModel.findByIdAndDelete(id);
+  }
+
+  name() {
+    return "like";
   }
 }
 

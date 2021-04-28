@@ -131,11 +131,11 @@ class User {
     this.#userModel = mongoose.model("User", userSchema);
   }
 
-  getAllUsers(queryObj = {}) {
+  getAll(queryObj = {}) {
     return this.#userModel.find(queryObj);
   }
 
-  createUser(credentials) {
+  create(credentials) {
     return this.#userModel.create({
       name: credentials.name,
       email: credentials.email,
@@ -146,24 +146,32 @@ class User {
     });
   }
 
-  saveUser(user, options = {}) {
+  save(user, options = {}) {
     return user.save(options);
   }
 
-  getUser(query) {
+  get(query) {
     return this.#userModel.findOne(query);
   }
 
-  getUserByEmail(email) {
+  getByEmail(email) {
     return this.#userModel.findOne({ email }).select("+password");
   }
 
-  getUserByID(id, options = {}) {
+  getById(id, options = {}) {
     return this.#userModel.findById(id).select(options);
   }
 
-  updateUserByID(id, data, options = {}) {
+  update(id, data, options = {}) {
     return this.#userModel.findByIdAndUpdate(id, data, options);
+  }
+
+  delete(id) {
+    return this.#userModel.findByIdAndDelete(id);
+  }
+
+  name() {
+    return "user";
   }
 }
 
