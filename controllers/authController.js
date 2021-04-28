@@ -116,8 +116,8 @@ export const signup = catchAsync(async (req, res, next) => {
   });
 });
 
-export const generateVerifyEmail = catchAsync(async (req, res, next) => {
-  const user = await checkUserEmailAndPassword(req, next);
+export const sendVerifyEmail = catchAsync(async (req, res, next) => {
+  const user = req.user;
 
   // CHECK IF USER IS VERIFIED OR NOT
   if (user.verified)

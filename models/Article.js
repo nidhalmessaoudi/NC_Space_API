@@ -83,7 +83,7 @@ class Article extends Features {
           type: String,
           default: "NC_Space tech",
         },
-        likes: {
+        numberOfLikes: {
           type: Number,
           default: 0,
         },
@@ -91,7 +91,6 @@ class Article extends Features {
           type: Number,
           default: 0,
         },
-        comments: [String],
         views: {
           type: Number,
           default: 0,
@@ -101,8 +100,26 @@ class Article extends Features {
           default: false,
         },
       },
-      { timestamps: true }
+      {
+        timestamps: true,
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true },
+      }
     );
+
+    // ADDING LIKES WITH VIRTUAL POPULATING
+    articleSchema.virtual("likes", {
+      ref: "Like",
+      foreignField: "article",
+      localField: "_id",
+    });
+
+    // ADDING COMMENTS WITH VIRTUAL POPULATING
+    articleSchema.virtual("comments", {
+      ref: "Comment",
+      foreignField: "article",
+      localField: "_id",
+    });
 
     // CREATE SLUG MIDDLEWARE
     articleSchema.pre("save", function (next) {
@@ -132,8 +149,11 @@ class Article extends Features {
     return this.query;
   }
 
-  getArticleByID(id, queryObj = {}) {
-    this.limitFields(this.#articleModel.findById(id), queryObj);
+  getArticleByID(id, queryObj = {}, populateFields = "") {
+    this.limitFields(
+      this.#articleModel.findById(id).populate(populateFields),
+      queryObj
+    );
 
     return this.query;
   }

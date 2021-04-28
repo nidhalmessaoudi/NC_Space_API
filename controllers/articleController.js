@@ -26,16 +26,20 @@ export const createArticle = catchAsync(async (req, res, next) => {
 });
 
 export const getArticle = catchAsync(async (req, res, next) => {
-  let article = await Article.getArticleByID(req.params.id, req.query);
+  let article = await Article.getArticleByID(
+    req.params.id,
+    req.query,
+    "comments"
+  );
 
   if (!article) {
     return next(new AppError("No article found with that ID", 404));
   }
 
   // UPDATE ARTICLE VIEWS
-  article = await Article.updateArticle(article._id, {
-    views: article.views + 1,
-  });
+  // article = await Article.updateArticle(article._id, {
+  //   views: article.views + 1,
+  // });
 
   res.status(200).json({
     status: "success",
