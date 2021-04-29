@@ -1,21 +1,9 @@
 import Like from "../models/Like.js";
 import catchAsync from "../utils/catchAsync.js";
+import * as handlerFactory from "./handlerFactory.js";
 
-export const getAllLikes = catchAsync(async (req, res, next) => {
-  let filter = {};
-
-  if (req.params.articleId) filter = { article: req.params.articleId };
-
-  const likes = await Like.getAll(filter);
-
-  res.status(200).json({
-    status: "success",
-    results: likes.length,
-    data: {
-      likes,
-    },
-  });
-});
+export const getAllLikes = handlerFactory.getAll(Like);
+export const getLike = handlerFactory.getOne(Like);
 
 export const createOrDeleteLike = catchAsync(async (req, res, next) => {
   // ALLOW NESTED ROUTES

@@ -1,9 +1,13 @@
 import mongoose from "mongoose";
 
-class Like {
+import Parent from "./Parent.js";
+
+class Like extends Parent {
   #likeModel;
 
   constructor() {
+    super();
+
     const likeSchema = new mongoose.Schema(
       {
         article: {
@@ -35,22 +39,8 @@ class Like {
     });
 
     this.#likeModel = mongoose.model("Like", likeSchema);
-  }
 
-  getAll(options) {
-    return this.#likeModel.find(options);
-  }
-
-  create(like) {
-    return this.#likeModel.create(like);
-  }
-
-  get(queryObj = {}) {
-    return this.#likeModel.findOne(queryObj);
-  }
-
-  delete(id) {
-    return this.#likeModel.findByIdAndDelete(id);
+    this.model = this.#likeModel;
   }
 
   name() {

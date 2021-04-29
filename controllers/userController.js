@@ -13,17 +13,15 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 
-export const getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await User.getAll();
+export const getAllUsers = handlerFactory.getAll(User);
+export const getUser = handlerFactory.getOne(User);
+export const updateUser = handlerFactory.updateOne(User);
+export const deleteUser = handlerFactory.deleteOne(User);
 
-  res.status(200).json({
-    status: "success",
-    results: users.length,
-    data: {
-      users,
-    },
-  });
-});
+export const getMe = (req, res, next) => {
+  req.params.id = req.user.id;
+  next();
+};
 
 export const updateMe = catchAsync(async (req, res, next) => {
   // CREATE ERROR IF USER POSTS PASSWORD DATA
@@ -65,22 +63,6 @@ export const deleteMe = catchAsync(async (req, res, next) => {
 export const createUser = (req, res, next) => {
   res.status(500).json({
     status: "error",
-    message: "This route is not yet defined!",
+    message: "This route is NOT defined! Please /signup instead.",
   });
 };
-
-export const getUser = (req, res, next) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet defined!",
-  });
-};
-
-export const updateUser = (req, res, next) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet defined!",
-  });
-};
-
-export const deleteUser = handlerFactory.deleteOne(User);

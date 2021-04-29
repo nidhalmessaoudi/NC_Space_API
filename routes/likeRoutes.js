@@ -10,4 +10,6 @@ router
   .get(protect, likeController.getAllLikes)
   .post(protect, likeController.createOrDeleteLike);
 
+router.get("/:id", likeController.getLike);
+
 export default router;

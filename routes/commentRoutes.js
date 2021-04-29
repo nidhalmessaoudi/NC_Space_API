@@ -8,8 +8,16 @@ const router = express.Router({ mergeParams: true });
 router
   .route("/")
   .get(protect, commentController.getAllComments)
-  .post(protect, commentController.createComment);
+  .post(
+    protect,
+    commentController.setArticleAndUserIds,
+    commentController.createComment
+  );
 
-router.route("/:id").delete(protect, commentController.deleteComment);
+router
+  .route("/:id")
+  .get(commentController.getComment)
+  .patch(protect, commentController.updateComment)
+  .delete(protect, commentController.deleteComment);
 
 export default router;

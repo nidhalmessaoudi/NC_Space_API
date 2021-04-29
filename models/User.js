@@ -4,12 +4,15 @@ import mongoose from "mongoose";
 import validator from "validator";
 import bcrypt from "bcryptjs";
 
+import Parent from "./Parent.js";
 import encrypt from "../utils/encrypt.js";
 
-class User {
+class User extends Parent {
   #userModel;
 
   constructor() {
+    super();
+
     const userSchema = new mongoose.Schema({
       name: {
         type: String,
@@ -129,13 +132,11 @@ class User {
     };
 
     this.#userModel = mongoose.model("User", userSchema);
+
+    this.model = this.#userModel;
   }
 
-  getAll(queryObj = {}) {
-    return this.#userModel.find(queryObj);
-  }
-
-  create(credentials) {
+  createUser(credentials) {
     return this.#userModel.create({
       name: credentials.name,
       email: credentials.email,
@@ -146,28 +147,12 @@ class User {
     });
   }
 
-  save(user, options = {}) {
-    return user.save(options);
-  }
-
-  get(query) {
-    return this.#userModel.findOne(query);
-  }
-
   getByEmail(email) {
     return this.#userModel.findOne({ email }).select("+password");
   }
 
   getById(id, options = {}) {
     return this.#userModel.findById(id).select(options);
-  }
-
-  update(id, data, options = {}) {
-    return this.#userModel.findByIdAndUpdate(id, data, options);
-  }
-
-  delete(id) {
-    return this.#userModel.findByIdAndDelete(id);
   }
 
   name() {

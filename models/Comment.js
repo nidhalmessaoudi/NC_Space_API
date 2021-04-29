@@ -1,9 +1,13 @@
 import mongoose from "mongoose";
 
-class Comment {
+import Parent from "./Parent.js";
+
+class Comment extends Parent {
   #commentModel;
 
   constructor() {
+    super();
+
     const commentSchema = new mongoose.Schema(
       {
         comment: {
@@ -41,18 +45,8 @@ class Comment {
     });
 
     this.#commentModel = mongoose.model("Comment", commentSchema);
-  }
 
-  getAll(options = {}) {
-    return this.#commentModel.find(options);
-  }
-
-  create(comment) {
-    return this.#commentModel.create(comment);
-  }
-
-  delete(id) {
-    return this.#commentModel.findByIdAndDelete(id);
+    this.model = this.#commentModel;
   }
 
   name() {

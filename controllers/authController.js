@@ -91,7 +91,7 @@ const checkUserEmailAndPassword = async (req, next) => {
 };
 
 export const signup = catchAsync(async (req, res, next) => {
-  const newUser = await User.create(req.body);
+  const newUser = await User.createUser(req.body);
 
   // GENERATE RANDOM VERIFY TOKEN
   const verifyToken = await generateRandomToken(newUser, 5);
@@ -167,7 +167,7 @@ export const verifyEmail = catchAsync(async (req, res, next) => {
   await User.save(user, { validateBeforeSave: false });
 
   // LOG THE USER IN, SEND JWT
-  createAndSendToken(res, user, 200);
+  createAnUsercreateUserdSendToken(res, user, 200);
 });
 
 export const login = catchAsync(async (req, res, next) => {

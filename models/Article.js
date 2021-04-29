@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
 import slugify from "slugify";
 
-import Features from "./Features.js";
+import Parent from "./Parent.js";
 import User from "./User.js";
 
-class Article extends Features {
+class Article extends Parent {
   #articleModel;
 
   constructor() {
@@ -133,43 +133,8 @@ class Article extends Features {
     });
 
     this.#articleModel = mongoose.model("Article", articleSchema);
-  }
 
-  getAll(queryObj = {}) {
-    this.filter(this.#articleModel, queryObj);
-    this.sort(queryObj);
-    this.limitFields(this.query, queryObj);
-    this.paginate(queryObj);
-
-    return this.query;
-  }
-
-  create(article) {
-    return this.#articleModel.create(article);
-  }
-
-  get(id, queryObj = {}, populateFields = "") {
-    this.limitFields(
-      this.#articleModel.findById(id).populate(populateFields),
-      queryObj
-    );
-
-    return this.query;
-  }
-
-  save(article, options = {}) {
-    return article.save(options);
-  }
-
-  update(id, newContent) {
-    return this.#articleModel.findByIdAndUpdate(id, newContent, {
-      new: true,
-      runValidators: true,
-    });
-  }
-
-  delete(id) {
-    return this.#articleModel.findByIdAndDelete(id);
+    this.model = this.#articleModel;
   }
 
   getStats(by) {
