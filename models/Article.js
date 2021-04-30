@@ -46,7 +46,8 @@ class Article extends Parent {
           ],
         },
         author: {
-          type: Array,
+          type: mongoose.Schema.ObjectId,
+          ref: "User",
           required: [true, "An article must have an author!"],
         },
         readingTime: {
@@ -86,7 +87,7 @@ class Article extends Parent {
         },
         views: {
           type: Number,
-          default: 0,
+          default: 1,
         },
         secretArticle: {
           type: Boolean,
@@ -112,12 +113,6 @@ class Article extends Parent {
       ref: "Comment",
       foreignField: "article",
       localField: "_id",
-    });
-
-    // EMBEDDING AUTHOR OBJECT
-    articleSchema.pre("save", async function (next) {
-      this.author = await User.getById(this.author[0], "name photo");
-      next();
     });
 
     // CREATE SLUG MIDDLEWARE

@@ -21,10 +21,25 @@ class Parent extends Features {
 
   get(id, queryObj = {}, populateFields = "") {
     if (populateFields) {
-      this.limitFields(
-        this.model.findById(id).populate(populateFields),
-        queryObj
-      );
+      if (populateFields.includes("author")) {
+        const virtualFields = populateFields.split(" ");
+
+        this.limitFields(
+          this.model
+            .findById(id)
+            .populate({
+              path: virtualFields.find((el) => el === "author"),
+              select: "name photo",
+            })
+            .populate(virtualFields.filter((el) => el !== "author").join(" ")),
+          queryObj
+        );
+      } else {
+        this.limitFields(
+          this.model.findById(id).populate(populateFields),
+          queryObj
+        );
+      }
     } else {
       this.limitFields(this.model.findOne({ _id: id }), queryObj);
     }

@@ -17,7 +17,10 @@ router.use("/:articleId/likes", likeRouter);
 router
   .route("/")
   .get(protect, articleController.getAllArticles)
-  .post(articleController.createArticle);
+  .post(protect, articleController.createArticle);
+
+// SAVE ARTICLE
+// router.get("/:articleId/save", protect, userController)
 
 // GET HOTTEST ARTICLES
 router.route("/hottest").get(articleController.getHottestArticles);
