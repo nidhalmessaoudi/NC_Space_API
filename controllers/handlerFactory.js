@@ -3,18 +3,15 @@ import AppError from "../utils/AppError.js";
 
 export const getAll = (Model) =>
   catchAsync(async (req, res, next) => {
+    if (req.user.role !== "admin") {
+      req.query.approved = { ne: false };
+    }
     const docName = Model.name();
 
-    let docs;
-    if (docName === "comment" || docName === "like" || docName === "bookmark") {
-      let filter = {};
+    if (docName === "comment" || docName === "like" || docName === "bookmark")
+      if (req.params.articleId) req.query.article = req.params.articleId;
 
-      if (req.params.articleId) filter = { article: req.params.articleId };
-
-      docs = await Model.getAll(filter);
-    } else {
-      docs = await Model.getAll(req.query);
-    }
+    const docs = await Model.getAll(req.query);
 
     res.status(200).json({
       status: "success",
@@ -28,17 +25,7 @@ export const getAll = (Model) =>
 export const getOne = (Model) =>
   catchAsync(async (req, res, next) => {
     const docName = Model.name();
-
-    let doc;
-
-    if (docName === "article")
-      doc = await Model.get(req.params.id, req.query, "author comments likes");
-
-    if (docName === "user")
-      doc = await Model.get(req.params.id, req.query, "myArticles");
-
-    if (docName === "like" || docName === "comment")
-      doc = await Model.get({ _id: req.params.id });
+    const doc = await Model.get(req.params.id, req.query);
 
     // UPDATE DOC VIEWS FOR ARTICLE
     if (doc.views) {

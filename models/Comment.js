@@ -26,6 +26,10 @@ class Comment extends Parent {
           ref: "User",
           required: [true, "Comment must belong to an author!"],
         },
+        approved: {
+          type: Boolean,
+          default: false,
+        },
       },
       {
         timestamps: true,

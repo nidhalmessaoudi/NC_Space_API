@@ -93,6 +93,10 @@ class Article extends Parent {
           type: Boolean,
           default: false,
         },
+        approved: {
+          type: Boolean,
+          default: false,
+        },
       },
       {
         timestamps: true,
@@ -113,6 +117,15 @@ class Article extends Parent {
       ref: "Comment",
       foreignField: "article",
       localField: "_id",
+    });
+
+    // POPULATE AUTHOR, LIKES AND COMMENTS
+    articleSchema.pre("findOne", function (next) {
+      this.populate({
+        path: "author",
+        select: "name photo",
+      }).populate(" likes comments");
+      next();
     });
 
     // CREATE SLUG MIDDLEWARE

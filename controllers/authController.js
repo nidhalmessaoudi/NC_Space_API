@@ -48,7 +48,7 @@ const sendRandomToken = async (user, subject, message, next) => {
   }
 };
 
-const createAndSendToken = (res, user, statusCode) => {
+const createAndSendToken = (res, user, statusCode, state = undefined) => {
   const token = signToken(user._id);
 
   const cookieOptions = {
@@ -63,13 +63,21 @@ const createAndSendToken = (res, user, statusCode) => {
 
   user.password = undefined;
 
-  res.status(statusCode).json({
-    status: "success",
-    token,
-    data: {
-      user,
-    },
-  });
+  if (state)
+    res.status(statusCode).json({
+      status: "success",
+      token,
+      message:
+        "Thank you for joing us, Please check your inbox, email verification sent!",
+    });
+  else
+    res.status(statusCode).json({
+      status: "success",
+      token,
+      data: {
+        user,
+      },
+    });
 };
 
 const checkUserEmailAndPassword = async (req, next) => {
@@ -109,11 +117,7 @@ export const signup = catchAsync(async (req, res, next) => {
 
   sendRandomToken(newUser, subject, message, next);
 
-  res.status(200).json({
-    status: "success",
-    message:
-      "Thank you for joing us, Please check your inbox, email verification sent!",
-  });
+  createAndSendToken(res, newUser, 200, "signup");
 });
 
 export const sendVerifyEmail = catchAsync(async (req, res, next) => {
@@ -149,7 +153,7 @@ export const verifyEmail = catchAsync(async (req, res, next) => {
   // GET USER BASED ON THE TOKEN
   const hashedToken = encrypt(req.params.token);
 
-  const user = await User.get({
+  const user = await User.get(undefined, {
     verifyToken: hashedToken,
     verifyTokenExpires: { $gt: Date.now() },
   });
@@ -166,8 +170,8 @@ export const verifyEmail = catchAsync(async (req, res, next) => {
 
   await User.save(user, { validateBeforeSave: false });
 
-  // LOG THE USER IN, SEND JWT
-  createAnUsercreateUserdSendToken(res, user, 200);
+  // LOG THE USER IN, SEND TOKEN
+  createAndSendToken(res, user, 200);
 });
 
 export const login = catchAsync(async (req, res, next) => {
@@ -264,7 +268,7 @@ export const resetPassword = catchAsync(async (req, res, next) => {
   // GET USER BASED ON THE TOKEN
   const hashedToken = encrypt(req.params.token);
 
-  const user = await User.get({
+  const user = await User.get(undefined, {
     resetToken: hashedToken,
     resetTokenExpires: { $gt: Date.now() },
   });

@@ -28,7 +28,7 @@ class Bookmark extends Parent {
       }
     );
 
-    // POPULATE AUTHOR
+    // POPULATE ARTICLE AND USER
     bookmarkSchema.pre(/^find/, function (next) {
       this.populate({
         path: "article",

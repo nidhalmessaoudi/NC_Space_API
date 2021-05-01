@@ -19,31 +19,9 @@ class Parent extends Features {
     return this.model.create(doc);
   }
 
-  get(id = "", queryObj = {}, populateFields = "") {
-    if (populateFields) {
-      if (populateFields.includes("author")) {
-        const virtualFields = populateFields.split(" ");
-
-        this.limitFields(
-          this.model
-            .findById(id)
-            .populate({
-              path: virtualFields.find((el) => el === "author"),
-              select: "name photo",
-            })
-            .populate(virtualFields.filter((el) => el !== "author").join(" ")),
-          queryObj
-        );
-      } else {
-        this.limitFields(
-          this.model.findById(id).populate(populateFields),
-          queryObj
-        );
-      }
-    } else {
-      if (id) this.limitFields(this.model.findOne({ _id: id }), queryObj);
-      else this.limitFields(this.model.findOne(queryObj));
-    }
+  get(id = "", queryObj = {}) {
+    if (id) this.limitFields(this.model.findById(id), queryObj);
+    else this.limitFields(this.model.findOne(queryObj));
 
     return this.query;
   }

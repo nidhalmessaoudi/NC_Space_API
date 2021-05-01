@@ -78,12 +78,21 @@ class User extends Parent {
       localField: "_id",
     });
 
-    // ADDING SAVED ARTICLES WITH VIRTUAL POPULATING
-    // userSchema.virtual("savedArticles", {
-    //   ref: "Article",
-    //   foreignField: "_id",
-    //   localField: "_id",
-    // });
+    // ADDING USER BOOKMARKS WITH VIRTUAL POPULATING
+    userSchema.virtual("bookmarks", {
+      ref: "Bookmark",
+      foreignField: "user",
+      localField: "_id",
+    });
+
+    // POPULATE MY_ARTICLES AND BOOKMARKS
+    userSchema.pre("findOne", function (next) {
+      this.populate({
+        path: "myArticles",
+        select: "title coverImage summary",
+      }).populate("bookmarks");
+      next();
+    });
 
     // HASHING PASSWORDS MIDDLEWARE
     userSchema.pre("save", async function (next) {
