@@ -19,7 +19,7 @@ class Parent extends Features {
     return this.model.create(doc);
   }
 
-  get(id, queryObj = {}, populateFields = "") {
+  get(id = "", queryObj = {}, populateFields = "") {
     if (populateFields) {
       if (populateFields.includes("author")) {
         const virtualFields = populateFields.split(" ");
@@ -41,7 +41,8 @@ class Parent extends Features {
         );
       }
     } else {
-      this.limitFields(this.model.findOne({ _id: id }), queryObj);
+      if (id) this.limitFields(this.model.findOne({ _id: id }), queryObj);
+      else this.limitFields(this.model.findOne(queryObj));
     }
 
     return this.query;

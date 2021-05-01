@@ -6,7 +6,7 @@ export const getAll = (Model) =>
     const docName = Model.name();
 
     let docs;
-    if (docName === "comment" || docName === "likes") {
+    if (docName === "comment" || docName === "like" || docName === "bookmark") {
       let filter = {};
 
       if (req.params.articleId) filter = { article: req.params.articleId };
@@ -60,7 +60,7 @@ export const getOne = (Model) =>
 
 export const createOne = (Model) =>
   catchAsync(async (req, res, next) => {
-    if (req.user) req.body.author = [req.user.id];
+    if (req.user) req.body.author = req.body.user = [req.user.id];
 
     const newDoc = await Model.create(req.body);
 
@@ -72,6 +72,38 @@ export const createOne = (Model) =>
         [docName]: newDoc,
       },
     });
+  });
+
+export const createOrDeleteOne = (Model) =>
+  catchAsync(async (req, res, next) => {
+    const docName = Model.name();
+
+    // ALLOW NESTED ROUTES
+    if (!req.body.article) req.body.article = req.params.articleId;
+    if (!req.body.user) req.body.user = req.user.id;
+
+    // CHECK IF THE DOC ALREADY EXISTS
+    const doc = await Model.get(undefined, {
+      article: req.body.article,
+      user: req.body.user,
+    });
+
+    if (doc) {
+      await Model.delete(doc._id);
+      res.status(204).json({
+        status: "success",
+        data: null,
+      });
+    } else {
+      const newDoc = await Model.create(req.body);
+
+      res.status(201).json({
+        status: "success",
+        data: {
+          [docName]: newDoc,
+        },
+      });
+    }
   });
 
 export const updateOne = (Model) =>

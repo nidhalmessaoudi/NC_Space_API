@@ -1,6 +1,7 @@
 import express from "express";
 
 import * as commentController from "../controllers/commentController.js";
+import setArticleAndUserIds from "../utils/helperNestedRoutes.js";
 import { protect } from "../controllers/authController.js";
 
 const router = express.Router({ mergeParams: true });
@@ -8,11 +9,7 @@ const router = express.Router({ mergeParams: true });
 router
   .route("/")
   .get(protect, commentController.getAllComments)
-  .post(
-    protect,
-    commentController.setArticleAndUserIds,
-    commentController.createComment
-  );
+  .post(protect, setArticleAndUserIds, commentController.createComment);
 
 router
   .route("/:id")
