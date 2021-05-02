@@ -25,10 +25,20 @@ export const getAll = (Model) =>
 export const getOne = (Model) =>
   catchAsync(async (req, res, next) => {
     const docName = Model.name();
-    const doc = await Model.get(req.params.id, req.query);
+    let doc = await Model.get(req.params.id);
+
+    // EXCLUDE NOT YET APPROVED ARTICLES AND COMMENTS
+    if (doc.approved !== true) doc = null;
+    if (doc?.comments) {
+      doc.comments.map((el, i, arr) => {
+        if (el.approved === false) {
+          arr.splice(i, 1);
+        }
+      });
+    }
 
     // UPDATE DOC VIEWS FOR ARTICLE
-    if (doc.views) {
+    if (doc?.views) {
       doc.views++;
       await Model.save(doc);
     }

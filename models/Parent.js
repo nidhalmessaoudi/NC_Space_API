@@ -20,8 +20,8 @@ class Parent extends Features {
   }
 
   get(id = "", queryObj = {}) {
-    if (id) this.limitFields(this.model.findById(id), queryObj);
-    else this.limitFields(this.model.findOne(queryObj));
+    if (id) this.query = this.model.findById(id);
+    else this.query = this.model.findOne(queryObj);
 
     return this.query;
   }

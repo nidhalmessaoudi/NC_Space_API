@@ -35,7 +35,7 @@ router.route("/stats").get(articleController.getArticleStats);
 // GET, UPDATE AND DELETE ONE ARTICLE
 router
   .route("/:id")
-  .get(articleController.getArticle)
+  .get(protect, articleController.getArticle)
   .patch(articleController.updateArticle)
   .delete(protect, restrictTo, articleController.deleteArticle);
 
