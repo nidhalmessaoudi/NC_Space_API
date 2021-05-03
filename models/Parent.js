@@ -1,9 +1,10 @@
 import Features from "./Features.js";
 
 class Parent extends Features {
+  model;
+
   constructor() {
     super();
-    this.model = undefined;
   }
 
   getAll(queryObj = {}) {

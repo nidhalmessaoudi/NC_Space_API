@@ -1,10 +1,9 @@
 import mongoose from "mongoose";
 
 import Parent from "./Parent.js";
+import Article from "./Article.js";
 
 class Like extends Parent {
-  #likeModel;
-
   constructor() {
     super();
 
@@ -38,9 +37,38 @@ class Like extends Parent {
       next();
     });
 
-    this.#likeModel = mongoose.model("Like", likeSchema);
+    likeSchema.statics.calcLikes = async function (articleId) {
+      const stats = await this.aggregate([
+        {
+          $match: { article: articleId },
+        },
+        {
+          $group: {
+            _id: "$article",
+            nLikes: { $sum: 1 },
+          },
+        },
+      ]);
 
-    this.model = this.#likeModel;
+      await Article.update(articleId, {
+        numberOfLikes: stats[0]?.nLikes || 0,
+      });
+    };
+
+    likeSchema.post("save", async function () {
+      this.constructor.calcLikes(this.article);
+    });
+
+    likeSchema.pre(/^findOneAnd/, async function (next) {
+      this.like = await this.findOne();
+      next();
+    });
+
+    likeSchema.post(/^findOneAnd/, async function () {
+      await this.like.constructor.calcLikes(this.like.article);
+    });
+
+    this.model = mongoose.model("Like", likeSchema);
   }
 
   name() {

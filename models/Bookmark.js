@@ -3,8 +3,6 @@ import mongoose from "mongoose";
 import Parent from "./Parent.js";
 
 class Bookmark extends Parent {
-  #bookmarkModel;
-
   constructor() {
     super();
 
@@ -41,9 +39,7 @@ class Bookmark extends Parent {
       next();
     });
 
-    this.#bookmarkModel = mongoose.model("Bookmark", bookmarkSchema);
-
-    this.model = this.#bookmarkModel;
+    this.model = mongoose.model("Bookmark", bookmarkSchema);
   }
 
   name() {

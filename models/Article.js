@@ -5,8 +5,6 @@ import Parent from "./Parent.js";
 import User from "./User.js";
 
 class Article extends Parent {
-  #articleModel;
-
   constructor() {
     super();
 
@@ -105,6 +103,9 @@ class Article extends Parent {
       }
     );
 
+    // INDEXES
+    articleSchema.index({ slug: 1 });
+
     // ADDING LIKES WITH VIRTUAL POPULATING
     articleSchema.virtual("likes", {
       ref: "Like",
@@ -140,13 +141,11 @@ class Article extends Parent {
       next();
     });
 
-    this.#articleModel = mongoose.model("Article", articleSchema);
-
-    this.model = this.#articleModel;
+    this.model = mongoose.model("Article", articleSchema);
   }
 
   getStats(by) {
-    return this.#articleModel.aggregate([
+    return this.model.aggregate([
       {
         $group: {
           _id: `$${by}` || null,
@@ -163,7 +162,7 @@ class Article extends Parent {
   }
 
   getMonthlyStats(year) {
-    return this.#articleModel.aggregate([
+    return this.model.aggregate([
       {
         $match: {
           createdAt: {

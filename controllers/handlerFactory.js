@@ -3,9 +3,9 @@ import AppError from "../utils/AppError.js";
 
 export const getAll = (Model) =>
   catchAsync(async (req, res, next) => {
-    if (req.user.role !== "admin") {
-      req.query.approved = { ne: false };
-    }
+    // if (req.user.role !== "admin") {
+    //   req.query.approved = { ne: false };
+    // }
     const docName = Model.name();
 
     if (docName === "comment" || docName === "like" || docName === "bookmark")
@@ -28,7 +28,10 @@ export const getOne = (Model) =>
     let doc = await Model.get(req.params.id);
 
     // EXCLUDE NOT YET APPROVED ARTICLES AND COMMENTS
-    if (doc.approved !== true) doc = null;
+    if (doc.approved && doc.approved !== true) {
+      doc = null;
+      return next(new AppError(`This ${docName} is not yet approved!`, 400));
+    }
     if (doc?.comments) {
       doc.comments.map((el, i, arr) => {
         if (el.approved === false) {

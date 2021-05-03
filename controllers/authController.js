@@ -224,16 +224,16 @@ export const protect = catchAsync(async (req, res, next) => {
   next();
 });
 
-export const restrictTo = (req, res, next) => {
-  const roles = ["admin"];
+export const restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError("You do NOT have permission to perform this action", 403)
+      );
+    }
 
-  if (!roles.includes(req.user.role)) {
-    return next(
-      new AppError("You do NOT have permission to perform this action", 403)
-    );
-  }
-
-  next();
+    next();
+  };
 };
 
 export const forgotPassword = catchAsync(async (req, res, next) => {

@@ -20,23 +20,37 @@ router.use("/:articleId/bookmarks", bookmarkRouter);
 // GET AND CREATE ARTICLES
 router
   .route("/")
-  .get(protect, articleController.getAllArticles)
-  .post(protect, articleController.createArticle);
+  .get(articleController.getAllArticles)
+  .post(
+    protect,
+    restrictTo("admin", "writer"),
+    articleController.createArticle
+  );
 
 // GET HOTTEST ARTICLES
 router.route("/hottest").get(articleController.getHottestArticles);
 
-// GET MONTHLY STATS PER YEAR
-router.route("/monthly-stats/:year").get(articleController.getMongthlyStats);
-
 // GET ALL TIME STATS
 router.route("/stats").get(articleController.getArticleStats);
+
+// GET MONTHLY STATS PER YEAR
+router
+  .route("/monthly-stats/:year")
+  .get(
+    protect,
+    restrictTo("admin", "writer"),
+    articleController.getMongthlyStats
+  );
 
 // GET, UPDATE AND DELETE ONE ARTICLE
 router
   .route("/:id")
-  .get(protect, articleController.getArticle)
-  .patch(articleController.updateArticle)
-  .delete(protect, restrictTo, articleController.deleteArticle);
+  .get(articleController.getArticle)
+  .patch(
+    protect,
+    restrictTo("admin", "writer"),
+    articleController.updateArticle
+  )
+  .delete(protect, restrictTo("admin"), articleController.deleteArticle);
 
 export default router;

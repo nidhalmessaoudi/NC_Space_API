@@ -8,11 +8,6 @@ const router = express.Router();
 // SIGN UP AND VERFIY
 router.post("/signup", authController.signup);
 router.get("/verify-email/:token", authController.verifyEmail);
-router.get(
-  "/send-verify-email",
-  authController.protect,
-  authController.sendVerifyEmail
-);
 
 // LOGIN
 router.post("/login", authController.login);
@@ -21,22 +16,22 @@ router.post("/login", authController.login);
 router.post("/forgot-password", authController.forgotPassword);
 router.patch("/reset-password/:token", authController.resetPassword);
 
+// PROTECT ALL ROUTES AFTER THIS MIDDLEWARE
+router.use(authController.protect);
+
+// SEND EMAIL VERIFICATION
+router.get("/send-verify-email", authController.sendVerifyEmail);
+
 // ME
-router.get(
-  "/me",
-  authController.protect,
-  userController.getMe,
-  userController.getUser
-);
-router.patch("/update-me", authController.protect, userController.updateMe);
-router.delete("/delete-me", authController.protect, userController.deleteMe);
+router.get("/me", userController.getMe, userController.getUser);
+router.patch("/update-me", userController.updateMe);
+router.delete("/delete-me", userController.deleteMe);
 
 // UPDATE PASSWORD
-router.patch(
-  "/update-password",
-  authController.protect,
-  authController.updatePassword
-);
+router.patch("/update-password", authController.updatePassword);
+
+// RESTRICT TO ONLY ADMIN FOR ALL ROUTES AFTER THIS MIDDLEWARE
+router.use(authController.restrictTo("admin"));
 
 // FOR ADMIN
 router

@@ -6,15 +6,17 @@ import { protect } from "../controllers/authController.js";
 
 const router = express.Router({ mergeParams: true });
 
+router.use(protect);
+
 router
   .route("/")
-  .get(protect, commentController.getAllComments)
-  .post(protect, setArticleAndUserIds, commentController.createComment);
+  .get(commentController.getAllComments)
+  .post(setArticleAndUserIds, commentController.createComment);
 
 router
   .route("/:id")
   .get(commentController.getComment)
-  .patch(protect, commentController.updateComment)
-  .delete(protect, commentController.deleteComment);
+  .patch(commentController.updateComment)
+  .delete(commentController.deleteComment);
 
 export default router;

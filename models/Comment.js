@@ -1,10 +1,9 @@
 import mongoose from "mongoose";
 
 import Parent from "./Parent.js";
+import Article from "./Article.js";
 
 class Comment extends Parent {
-  #commentModel;
-
   constructor() {
     super();
 
@@ -48,9 +47,38 @@ class Comment extends Parent {
       next();
     });
 
-    this.#commentModel = mongoose.model("Comment", commentSchema);
+    commentSchema.statics.calcComments = async function (articleId) {
+      const stats = await this.aggregate([
+        {
+          $match: { article: articleId },
+        },
+        {
+          $group: {
+            _id: "$article",
+            nComments: { $sum: 1 },
+          },
+        },
+      ]);
 
-    this.model = this.#commentModel;
+      await Article.update(articleId, {
+        numberOfComments: stats[0]?.nComments || 0,
+      });
+    };
+
+    commentSchema.post("save", async function () {
+      this.constructor.calcComments(this.article);
+    });
+
+    commentSchema.pre(/^findOneAnd/, async function (next) {
+      this.comment = await this.findOne();
+      next();
+    });
+
+    commentSchema.post(/^findOneAnd/, async function () {
+      await this.comment.constructor.calcComments(this.comment.article);
+    });
+
+    this.model = mongoose.model("Comment", commentSchema);
   }
 
   name() {

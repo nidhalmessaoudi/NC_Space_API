@@ -6,10 +6,12 @@ import { protect } from "../controllers/authController.js";
 
 const router = express.Router({ mergeParams: true });
 
+router.use(protect);
+
 router
   .route("/")
-  .get(protect, setArticleAndUserIds, bookmarkController.getAllBookmarks)
-  .post(protect, bookmarkController.createOrDeleteBookmark);
+  .get(setArticleAndUserIds, bookmarkController.getAllBookmarks)
+  .post(bookmarkController.createOrDeleteBookmark);
 
 router.get("/:id", bookmarkController.getBookmark);
 

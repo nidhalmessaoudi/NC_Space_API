@@ -8,8 +8,6 @@ import Parent from "./Parent.js";
 import encrypt from "../utils/encrypt.js";
 
 class User extends Parent {
-  #userModel;
-
   constructor() {
     super();
 
@@ -161,13 +159,11 @@ class User extends Parent {
       }
     };
 
-    this.#userModel = mongoose.model("User", userSchema);
-
-    this.model = this.#userModel;
+    this.model = mongoose.model("User", userSchema);
   }
 
   createUser(credentials) {
-    return this.#userModel.create({
+    return this.model.create({
       name: credentials.name,
       email: credentials.email,
       photo: credentials.photo,
@@ -178,11 +174,11 @@ class User extends Parent {
   }
 
   getByEmail(email) {
-    return this.#userModel.findOne({ email }).select("+password");
+    return this.model.findOne({ email }).select("+password");
   }
 
   getById(id, options = {}) {
-    return this.#userModel.findById(id).select(options);
+    return this.model.findById(id).select(options);
   }
 
   name() {
