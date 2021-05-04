@@ -27,6 +27,9 @@ router
     articleController.createArticle
   );
 
+// SEARCH ARTICLES WITH TEXT QUERIES
+router.route("/search").get(articleController.getArticlesBySearch);
+
 // GET HOTTEST ARTICLES
 router.route("/hottest").get(articleController.getHottestArticles);
 

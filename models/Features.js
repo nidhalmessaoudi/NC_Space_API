@@ -20,7 +20,7 @@ class Features {
     });
 
     const queryStr = JSON.stringify(queryObject).replace(
-      /\b(gte|gt|lte|lt|ne)\b/g,
+      /\b(gte|gt|lte|lt|ne|text|search)\b/g,
       (match) => `$${match}`
     );
 

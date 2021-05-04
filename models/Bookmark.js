@@ -26,6 +26,9 @@ class Bookmark extends Parent {
       }
     );
 
+    // AN INDEX FOR BOTH ARTICLE AND USER TO BE UNIQUE
+    bookmarkSchema.index({ article: 1, user: 1 }, { unique: true });
+
     // POPULATE ARTICLE AND USER
     bookmarkSchema.pre(/^find/, function (next) {
       this.populate({

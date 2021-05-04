@@ -27,6 +27,9 @@ class Like extends Parent {
       }
     );
 
+    // AN INDEX FOR BOTH ARTICLE AND USER TO BE UNIQUE
+    likeSchema.index({ article: 1, user: 1 }, { unique: true });
+
     // POPULATE AUTHOR
     likeSchema.pre(/^find/, function (next) {
       this.populate({

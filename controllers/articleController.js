@@ -1,5 +1,5 @@
 import Article from "../models/Article.js";
-// import AppError from "../utils/AppError.js";
+import AppError from "../utils/AppError.js";
 import catchAsync from "../utils/catchAsync.js";
 import * as handlerFactory from "./handlerFactory.js";
 
@@ -8,6 +8,27 @@ export const getArticle = handlerFactory.getOne(Article);
 export const createArticle = handlerFactory.createOne(Article);
 export const updateArticle = handlerFactory.updateOne(Article);
 export const deleteArticle = handlerFactory.deleteOne(Article);
+
+export const getArticlesBySearch = catchAsync(async (req, res, next) => {
+  if (!req.query.q)
+    return next(new AppError("Please provide a query for your search!", 400));
+
+  const query = req.query.q.split("-").join(" ");
+
+  // { $text: { $search: query } };
+  const articles = await Article.getAll({
+    text: { search: query },
+    approved: { ne: false },
+  });
+
+  res.status(200).json({
+    status: "success",
+    results: articles.length,
+    data: {
+      articles,
+    },
+  });
+});
 
 export const getHottestArticles = catchAsync(async (req, res, next) => {
   const hottestArticles = await Article.getAll({

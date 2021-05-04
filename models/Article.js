@@ -103,8 +103,18 @@ class Article extends Parent {
       }
     );
 
-    // INDEXES
+    // SLUG INDEX
     articleSchema.index({ slug: 1 });
+
+    // TEXT INDEXES FOR SEARCH
+    articleSchema.index(
+      {
+        title: "text",
+        summary: "text",
+        body: "text",
+      },
+      { default_language: "english" }
+    );
 
     // ADDING LIKES WITH VIRTUAL POPULATING
     articleSchema.virtual("likes", {
