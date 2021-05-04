@@ -3,9 +3,9 @@ import AppError from "../utils/AppError.js";
 
 export const getAll = (Model) =>
   catchAsync(async (req, res, next) => {
-    // if (req.user.role !== "admin") {
-    //   req.query.approved = { ne: false };
-    // }
+    if (!req.user && req.user?.role !== "admin")
+      req.query.approved = { ne: false };
+
     const docName = Model.name();
 
     if (docName === "comment" || docName === "like" || docName === "bookmark")
