@@ -194,10 +194,7 @@ export const protect = catchAsync(async (req, res, next) => {
 
   if (!token) {
     return next(
-      new AppError(
-        "You are not authorized to access this route. Please login first!",
-        401
-      )
+      new AppError("You are not logged in! Please login first.", 401)
     );
   }
 

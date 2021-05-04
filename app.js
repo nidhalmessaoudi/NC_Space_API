@@ -12,6 +12,7 @@ import userRouter from "./routes/userRoutes.js";
 import commentRouter from "./routes/commentRoutes.js";
 import likeRouter from "./routes/likeRoutes.js";
 import bookmarkRouter from "./routes/bookmarkRoutes.js";
+import adminRouter from "./routes/adminRoutes.js";
 
 const app = express();
 
@@ -62,6 +63,9 @@ app.use("/api/v1/likes", likeRouter);
 
 // BOOKMARK ROUTES
 app.use("/api/v1/bookmarks", bookmarkRouter);
+
+// ADMIN ROUTES
+app.use("/api/v1/admin", adminRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

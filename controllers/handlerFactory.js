@@ -10,6 +10,10 @@ export const getAll = (Model) =>
 
     if (docName === "comment" || docName === "like" || docName === "bookmark")
       if (req.params.articleId) req.query.article = req.params.articleId;
+    if (docName === "bookmark" && !req.params.articleId)
+      return next(
+        new AppError("You do NOT have permission to perform this action", 403)
+      );
 
     const docs = await Model.getAll(req.query);
 
@@ -60,11 +64,13 @@ export const getOne = (Model) =>
 
 export const createOne = (Model) =>
   catchAsync(async (req, res, next) => {
-    if (req.user) req.body.author = req.body.user = [req.user.id];
-
-    const newDoc = await Model.create(req.body);
+    if (req.user) req.body.author = req.body.user = req.user.id;
+    if (req.body.approved) delete req.body.approved;
+    if (req.body.role) delete req.body.role;
 
     const docName = Model.name();
+
+    const newDoc = await Model.create(req.body);
 
     res.status(201).json({
       status: "success",
@@ -108,6 +114,7 @@ export const createOrDeleteOne = (Model) =>
 
 export const updateOne = (Model) =>
   catchAsync(async (req, res, next) => {
+    if (req.user.role === "admin") req.body.approved = true;
     const updatedDoc = await Model.update(req.params.id, req.body);
 
     const docName = Model.name();

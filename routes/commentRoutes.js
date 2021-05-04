@@ -6,12 +6,12 @@ import { protect } from "../controllers/authController.js";
 
 const router = express.Router({ mergeParams: true });
 
-router.use(protect);
-
 router
   .route("/")
   .get(commentController.getAllComments)
-  .post(setArticleAndUserIds, commentController.createComment);
+  .post(protect, setArticleAndUserIds, commentController.createComment);
+
+router.use(protect);
 
 router
   .route("/:id")

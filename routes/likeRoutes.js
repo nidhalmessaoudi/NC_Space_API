@@ -6,13 +6,11 @@ import { protect } from "../controllers/authController.js";
 
 const router = express.Router({ mergeParams: true });
 
-router.use(protect);
-
 router
   .route("/")
-  .get(setArticleAndUserIds, likeController.getAllLikes)
-  .post(likeController.createOrDeleteLike);
+  .get(likeController.getAllLikes)
+  .post(protect, setArticleAndUserIds, likeController.createOrDeleteLike);
 
-router.get("/:id", likeController.getLike);
+router.get("/:id", protect, likeController.getLike);
 
 export default router;

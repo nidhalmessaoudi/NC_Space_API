@@ -31,16 +31,14 @@ router
 router.route("/hottest").get(articleController.getHottestArticles);
 
 // GET ALL TIME STATS
-router.route("/stats").get(articleController.getArticleStats);
+router
+  .route("/stats")
+  .get(protect, restrictTo("admin"), articleController.getArticleStats);
 
 // GET MONTHLY STATS PER YEAR
 router
   .route("/monthly-stats/:year")
-  .get(
-    protect,
-    restrictTo("admin", "writer"),
-    articleController.getMongthlyStats
-  );
+  .get(protect, restrictTo("admin"), articleController.getMongthlyStats);
 
 // GET, UPDATE AND DELETE ONE ARTICLE
 router
