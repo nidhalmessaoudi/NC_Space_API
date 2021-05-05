@@ -167,7 +167,6 @@ class User extends Parent {
       name: credentials.name,
       email: credentials.email,
       photo: credentials.photo,
-      role: credentials.role,
       password: credentials.password,
       passwordConfirm: credentials.passwordConfirm,
     });
