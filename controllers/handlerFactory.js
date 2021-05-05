@@ -3,17 +3,18 @@ import AppError from "../utils/AppError.js";
 
 export const getAll = (Model) =>
   catchAsync(async (req, res, next) => {
-    if (!req.user && req.user?.role !== "admin")
-      req.query.approved = { ne: false };
-
     const docName = Model.name();
+
+    if (!req.user && req.user?.role !== "admin") {
+      req.query.approved = { ne: false };
+      if (docName === "bookmark")
+        return next(
+          new AppError("You do NOT have permission to perform this action", 403)
+        );
+    }
 
     if (docName === "comment" || docName === "like" || docName === "bookmark")
       if (req.params.articleId) req.query.article = req.params.articleId;
-    if (docName === "bookmark" && !req.params.articleId)
-      return next(
-        new AppError("You do NOT have permission to perform this action", 403)
-      );
 
     const docs = await Model.getAll(req.query);
 
@@ -114,10 +115,31 @@ export const createOrDeleteOne = (Model) =>
 
 export const updateOne = (Model) =>
   catchAsync(async (req, res, next) => {
-    if (req.user.role === "admin") req.body.approved = true;
-    const updatedDoc = await Model.update(req.params.id, req.body);
-
     const docName = Model.name();
+
+    if (req.body.approved) delete req.body.approved;
+    if (req.body.role) delete req.body.role;
+    if (req.body.author) delete req.body.author;
+    if (req.user.role === "admin") req.body.approved = true;
+
+    if (docName === "article" || docName === "user" || docName === "comment") {
+      const foundDoc = await Model.get(req.params.id);
+      if (
+        (docName === "article" || docName === "comment") &&
+        foundDoc.author.id !== req.user.id
+      ) {
+        return next(
+          new AppError("You do NOT have permission to perform this action", 403)
+        );
+      }
+      if (docName === "user" && foundDoc._id !== req.user.id) {
+        return next(
+          new AppError("You do NOT have permission to perform this action", 403)
+        );
+      }
+    }
+
+    const updatedDoc = await Model.update(req.params.id, req.body);
 
     if (!updatedDoc) {
       return next(new AppError(`No ${docName} found with that ID`, 404));
