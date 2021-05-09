@@ -51,6 +51,11 @@ class User extends Parent {
           type: Boolean,
           default: false,
         },
+        fromGoogle: {
+          type: Boolean,
+          default: false,
+        },
+        googleId: String,
         verifyToken: String,
         verifyTokenExpires: Date,
         passwordChangedAt: Date,

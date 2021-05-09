@@ -2,6 +2,7 @@ import express from "express";
 
 import * as authController from "../controllers/authController.js";
 import * as userController from "../controllers/userController.js";
+import * as oauthController from "../controllers/oauthController.js";
 
 const router = express.Router();
 
@@ -15,6 +16,10 @@ router.post("/login", authController.login);
 // RESET PASSWORD
 router.post("/forgot-password", authController.forgotPassword);
 router.patch("/reset-password/:token", authController.resetPassword);
+
+// LOGIN/SIGN UP WITH GOOGLE OAUTH2
+router.get("/google-login", oauthController.getGoogleLogin);
+router.get("/auth/google", oauthController.getGoogleRedirect);
 
 // PROTECT ALL ROUTES AFTER THIS MIDDLEWARE
 router.use(authController.protect);
@@ -44,7 +49,5 @@ router
   .get(userController.getUser)
   .patch(userController.updateUser)
   .delete(userController.deleteUser);
-
-// GET SAVED ARTICLES FOR THE USER
 
 export default router;

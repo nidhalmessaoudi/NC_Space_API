@@ -15,11 +15,14 @@
   "author": "Nidhal Messaoudi <contactme.nidhal@gmail.com>",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.21.1",
     "bcryptjs": "^2.4.3",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-mongo-sanitize": "^2.0.2",
     "express-rate-limit": "^5.2.6",
+    "google-auth-library": "^7.0.4",
+    "googleapis": "^73.0.0",
     "helmet": "^4.5.0",
     "hpp": "^0.2.3",
     "jsonwebtoken": "^8.5.1",
@@ -39,6 +42,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-react": "^7.23.2",
+    "eslint-plugin-react-hooks": "^4.2.0",
     "prettier": "^2.2.1"
   }
 }

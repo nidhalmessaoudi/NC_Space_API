@@ -48,7 +48,12 @@ const sendRandomToken = async (user, subject, message, next) => {
   }
 };
 
-const createAndSendToken = (res, user, statusCode, state = undefined) => {
+export const createAndSendToken = (
+  res,
+  user,
+  statusCode,
+  state = undefined
+) => {
   const token = signToken(user._id);
 
   const cookieOptions = {
@@ -158,7 +163,7 @@ export const verifyEmail = catchAsync(async (req, res, next) => {
     verifyTokenExpires: { $gt: Date.now() },
   });
 
-  // IF TOKEN NOT EXPIRED AND THERE IS USER => SET THE NEW PASSWORD
+  // IF TOKEN NOT EXPIRED AND THERE IS USER => SET USER AS VERIFIED
   if (!user)
     return next(
       new AppError("Token verification is invalid or has expired!", 400)

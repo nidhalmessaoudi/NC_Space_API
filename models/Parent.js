@@ -28,7 +28,7 @@ class Parent extends Features {
   }
 
   save(doc, options = {}) {
-    return doc.save(options);
+    return this.model(doc).save(options);
   }
 
   update(id, newContent) {
