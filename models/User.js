@@ -51,11 +51,12 @@ class User extends Parent {
           type: Boolean,
           default: false,
         },
-        fromGoogle: {
-          type: Boolean,
-          default: false,
+        from: {
+          type: String,
+          enum: ["google", "facebook"],
         },
         googleId: String,
+        facebookId: String,
         verifyToken: String,
         verifyTokenExpires: Date,
         passwordChangedAt: Date,

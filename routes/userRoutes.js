@@ -21,6 +21,10 @@ router.patch("/reset-password/:token", authController.resetPassword);
 router.get("/google-login", oauthController.getGoogleLogin);
 router.get("/auth/google", oauthController.getGoogleRedirect);
 
+// LOGIN/SIGN UP WITH FACEBOOK
+router.get("/facebook-login", oauthController.getFbLogin);
+router.get("/auth/facebook", oauthController.getFbRedirect);
+
 // PROTECT ALL ROUTES AFTER THIS MIDDLEWARE
 router.use(authController.protect);
 
