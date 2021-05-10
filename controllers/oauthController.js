@@ -139,7 +139,7 @@ export const getFbRedirect = catchAsync(async (req, res, next) => {
       url: "https://graph.facebook.com/v10.0/oauth/access_token",
       method: "get",
       params: {
-        client_id: "547161289585934",
+        client_id: process.env.FB_CLIENT_ID,
         client_secret: process.env.FB_CLIENT_SECRET,
         redirect_uri: "http://localhost:8000/api/v1/users/auth/facebook",
         code: req.query.code,
