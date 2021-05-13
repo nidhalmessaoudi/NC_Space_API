@@ -12,6 +12,7 @@ import userRouter from "./routes/userRoutes.js";
 import commentRouter from "./routes/commentRoutes.js";
 import likeRouter from "./routes/likeRoutes.js";
 import bookmarkRouter from "./routes/bookmarkRoutes.js";
+import followerRouter from "./routes/followerRoutes.js";
 import adminRouter from "./routes/adminRoutes.js";
 
 const app = express();
@@ -63,6 +64,9 @@ app.use("/api/v1/likes", likeRouter);
 
 // BOOKMARK ROUTES
 app.use("/api/v1/bookmarks", bookmarkRouter);
+
+// FOLLOWER ROUTES
+app.use("/api/v1/followers", followerRouter);
 
 // ADMIN ROUTES
 app.use("/api/v1/admin", adminRouter);

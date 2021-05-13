@@ -51,34 +51,35 @@ const createAndSendUserFromOAuth = async (res, user, from, next) => {
 };
 
 // FOR GOOGLE
-const { OAuth2 } = google.auth;
+const setupOAuthClient = () => {
+  const { OAuth2 } = google.auth;
 
-console.log(process.env);
+  const oauth2Credentials = {
+    client_id: process.env.GOOGLE_CLIENT_ID,
+    project_id: "NC Space",
+    auth_uri: "https://accounts.google.com/o/oauth2/auth",
+    token_uri: "https://oauth2.googleapis.com/token",
+    auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
+    client_secret: process.env.GOOGLE_CLIENT_SECRET,
+    redirect_uri: "http://localhost:8000/api/v1/users/auth/google",
+  };
 
-const oauth2Credentials = {
-  client_id: process.env.GOOGLE_CLIENT_ID,
-  project_id: "NC Space",
-  auth_uri: "https://accounts.google.com/o/oauth2/auth",
-  token_uri: "https://oauth2.googleapis.com/token",
-  auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
-  client_secret: process.env.GOOGLE_CLIENT_SECRET,
-  redirect_uri: "http://localhost:8000/api/v1/users/auth/google",
-  scopes: [
-    "https://www.googleapis.com/auth/userinfo.email",
-    "https://www.googleapis.com/auth/userinfo.profile",
-  ],
+  return new OAuth2(
+    oauth2Credentials.client_id,
+    oauth2Credentials.client_secret,
+    oauth2Credentials.redirect_uri
+  );
 };
 
-const oauth2Client = new OAuth2(
-  oauth2Credentials.client_id,
-  oauth2Credentials.client_secret,
-  oauth2Credentials.redirect_uri
-);
-
 export const getGoogleLogin = (req, res, next) => {
+  const oauth2Client = setupOAuthClient();
+
   const link = oauth2Client.generateAuthUrl({
     access_type: "offline",
-    scope: oauth2Credentials.scopes,
+    scope: [
+      "https://www.googleapis.com/auth/userinfo.email",
+      "https://www.googleapis.com/auth/userinfo.profile",
+    ],
   });
 
   res.status(200).json({
@@ -88,6 +89,8 @@ export const getGoogleLogin = (req, res, next) => {
 };
 
 export const getGoogleRedirect = catchAsync(async (req, res, next) => {
+  const oauth2Client = setupOAuthClient();
+
   if (req.query.error) {
     return denyError(next);
   } else {

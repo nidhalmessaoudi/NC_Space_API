@@ -75,26 +75,49 @@ class User extends Parent {
       }
     );
 
-    // ADDING USER ARTICLES WITH VIRTUAL POPULATING
+    // ADDING USER ARTICLES
     userSchema.virtual("myArticles", {
       ref: "Article",
       foreignField: "author",
       localField: "_id",
     });
 
-    // ADDING USER BOOKMARKS WITH VIRTUAL POPULATING
+    // ADDING USER BOOKMARKS
     userSchema.virtual("bookmarks", {
       ref: "Bookmark",
       foreignField: "user",
       localField: "_id",
     });
 
-    // POPULATE MY_ARTICLES AND BOOKMARKS
+    // ADDING USER FOLLOWERS
+    userSchema.virtual("followers", {
+      ref: "Follower",
+      foreignField: "followed",
+      localField: "_id",
+    });
+
+    // ADDING USER FOLLOWINGS
+    userSchema.virtual("following", {
+      ref: "Follower",
+      foreignField: "follower",
+      localField: "_id",
+    });
+
+    // POPULATE MY_ARTICLES, BOOKMARKS, FOLLOWERS AND FOLLOWING
     userSchema.pre("findOne", function (next) {
       this.populate({
         path: "myArticles",
         select: "title coverImage summary",
-      }).populate("bookmarks");
+      })
+        .populate({
+          path: "followers",
+          select: "follower",
+        })
+        .populate({
+          path: "following",
+          select: "author",
+        })
+        .populate("bookmarks");
       next();
     });
 

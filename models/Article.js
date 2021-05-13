@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import slugify from "slugify";
 
 import Parent from "./Parent.js";
-import User from "./User.js";
 
 class Article extends Parent {
   constructor() {
@@ -112,6 +111,7 @@ class Article extends Parent {
         title: "text",
         summary: "text",
         body: "text",
+        slug: "text",
       },
       { default_language: "english" }
     );

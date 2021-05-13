@@ -51,6 +51,9 @@ export const getOne = (Model) =>
       await Model.save(doc);
     }
 
+    // REMOVE MY_ARTICLES FIELD FOR USERS WITH ROLE "USER"
+    if (doc?.role === "user") delete doc.myArticles;
+
     if (!doc) {
       return next(new AppError(`No ${docName} found with that ID`, 404));
     }
@@ -85,15 +88,28 @@ export const createOrDeleteOne = (Model) =>
   catchAsync(async (req, res, next) => {
     const docName = Model.name();
 
-    // ALLOW NESTED ROUTES
-    if (!req.body.article) req.body.article = req.params.articleId;
-    if (!req.body.user) req.body.user = req.user.id;
+    let doc;
+    if (docName === "follower") {
+      if (!req.body.followed || !req.body.follower)
+        return next(new AppError("Missing the followed or the follower!", 400));
+      doc = await Model.get(undefined, {
+        followed: req.body.followed,
+        follower: req.body.follower,
+      });
+    } else {
+      // ALLOW NESTED ROUTES
+      if (!req.body.article) {
+        if (req.params.articleId) req.body.article = req.params.articleId;
+        else return next(new AppError("Provide the article Id!", 400));
+      }
+      if (!req.body.user) req.body.user = req.user.id;
 
-    // CHECK IF THE DOC ALREADY EXISTS
-    const doc = await Model.get(undefined, {
-      article: req.body.article,
-      user: req.body.user,
-    });
+      // CHECK IF THE DOC ALREADY EXISTS
+      doc = await Model.get(undefined, {
+        article: req.body.article,
+        user: req.body.user,
+      });
+    }
 
     if (doc) {
       await Model.delete(doc._id);
