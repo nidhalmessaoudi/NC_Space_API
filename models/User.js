@@ -55,6 +55,11 @@ class User extends Parent {
           type: String,
           enum: ["google", "facebook"],
         },
+        birthday: Date,
+        gender: {
+          type: String,
+          enum: ["male", "female", "custom"],
+        },
         googleId: String,
         facebookId: String,
         verifyToken: String,
