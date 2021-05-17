@@ -54,7 +54,7 @@ export const createAndSendToken = (
   statusCode,
   state = undefined
 ) => {
-  const token = signToken(user._id);
+  const token = signToken(user.id);
 
   const cookieOptions = {
     expires: new Date(
@@ -181,6 +181,7 @@ export const verifyEmail = catchAsync(async (req, res, next) => {
 
 export const login = catchAsync(async (req, res, next) => {
   const user = await checkUserEmailAndPassword(req, next);
+  if (!user) return;
 
   // CHECK IF EVTHG IS OK, SEND TOKEN TO CLIENT
   createAndSendToken(res, user, 200);
@@ -195,6 +196,8 @@ export const protect = catchAsync(async (req, res, next) => {
     req.headers.authorization.startsWith("Bearer")
   ) {
     token = req.headers.authorization.split(" ")[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
   }
 
   if (!token) {
