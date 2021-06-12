@@ -3,6 +3,7 @@ import crypto from "crypto";
 import mongoose from "mongoose";
 import validator from "validator";
 import bcrypt from "bcryptjs";
+import slugify from "slugify";
 
 import Parent from "./Parent.js";
 import encrypt from "../utils/encrypt.js";
@@ -17,6 +18,7 @@ class User extends Parent {
           type: String,
           required: [true, "Please tell us your name!"],
         },
+        username: String,
         email: {
           type: String,
           required: [true, "Please provide your email!"],
@@ -79,6 +81,12 @@ class User extends Parent {
         toObject: { virtuals: true },
       }
     );
+
+    // CREATE USERNAME MIDDLEWARE
+    userSchema.pre("save", function (next) {
+      this.username = slugify(this.name, { replacement: "", lower: true });
+      next();
+    });
 
     // ADDING USER ARTICLES
     userSchema.virtual("myArticles", {
