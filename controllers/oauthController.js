@@ -124,7 +124,7 @@ export const getFbLogin = (req, res, next) => {
   const fbLoginUrlParams = stringify({
     client_id: process.env.FB_CLIENT_ID,
     redirect_uri: "http://localhost:8000/api/v1/users/auth/facebook",
-    scope: ["email", "user_birthday", "user_gender"].join(","),
+    scope: "email",
     response_type: "code",
     auth_type: "rerequest",
   });
@@ -157,7 +157,7 @@ export const getFbRedirect = catchAsync(async (req, res, next) => {
       method: "get",
       params: {
         access_token: data.access_token,
-        fields: "id,name,email,picture,birthday,gender",
+        fields: "id,name,email,picture",
       },
     });
 

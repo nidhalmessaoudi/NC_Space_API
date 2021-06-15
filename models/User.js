@@ -57,11 +57,6 @@ class User extends Parent {
           type: String,
           enum: ["google", "facebook"],
         },
-        birthday: Date,
-        gender: {
-          type: String,
-          enum: ["male", "female", "custom"],
-        },
         googleId: String,
         facebookId: String,
         verifyToken: String,
@@ -136,8 +131,7 @@ class User extends Parent {
 
     // HASHING PASSWORDS MIDDLEWARE
     userSchema.pre("save", async function (next) {
-      if (!this.isModified("password")) return next();
-
+      if (!this.isNew || !this.isModified("password")) return next();
       this.password = await bcrypt.hash(this.password, 12);
 
       this.passwordConfirm = undefined;
