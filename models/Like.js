@@ -34,7 +34,7 @@ class Like extends Parent {
     likeSchema.pre(/^find/, function (next) {
       this.populate({
         path: "user",
-        select: "name photo",
+        select: "name username photo",
       });
 
       next();

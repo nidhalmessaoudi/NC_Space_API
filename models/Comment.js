@@ -41,7 +41,7 @@ class Comment extends Parent {
     commentSchema.pre(/^find/, function (next) {
       this.populate({
         path: "author",
-        select: "name photo",
+        select: "name username photo",
       });
 
       next();

@@ -34,10 +34,10 @@ class Follower extends Parent {
     followerSchema.pre(/^find/, function (next) {
       this.populate({
         path: "followed",
-        select: "name photo",
+        select: "name username photo",
       }).populate({
         path: "follower",
-        select: "name photo",
+        select: "name username photo",
       });
 
       next();

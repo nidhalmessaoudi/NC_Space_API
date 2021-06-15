@@ -36,7 +36,7 @@ class Bookmark extends Parent {
         select: "title coverImage summary",
       }).populate({
         path: "user",
-        select: "name photo",
+        select: "name username photo",
       });
 
       next();
