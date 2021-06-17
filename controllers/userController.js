@@ -18,6 +18,33 @@ export const getUser = handlerFactory.getOne(User);
 export const updateUser = handlerFactory.updateOne(User);
 export const deleteUser = handlerFactory.deleteOne(User);
 
+export const getPublicUser = catchAsync(async (req, res, next) => {
+  if (!req.params.username)
+    return next(new AppError("Please provide a valid username!", 400));
+
+  const user = await User.getByUsername(req.params.username, {
+    name: 1,
+    username: 1,
+    email: 1,
+    photo: 1,
+    role: 1,
+  });
+
+  if (!user)
+    return next(new AppError("No user was found with this username!", 404));
+
+  const publicUser = user.toObject();
+  delete publicUser.bookmarks;
+  if (publicUser.role === "user") delete publicUser.myArticles;
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      user: publicUser,
+    },
+  });
+});
+
 export const getMe = (req, res, next) => {
   req.params.id = req.user.id;
   next();

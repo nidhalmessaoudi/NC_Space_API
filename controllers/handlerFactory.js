@@ -30,7 +30,13 @@ export const getAll = (Model) =>
 export const getOne = (Model) =>
   catchAsync(async (req, res, next) => {
     const docName = Model.name();
-    let doc = await Model.get(req.params.id);
+    const initDoc = await Model.get(req.params.id);
+
+    if (!doc) {
+      return next(new AppError(`No ${docName} found with that ID`, 404));
+    }
+
+    let doc = initDoc.toObject();
 
     // EXCLUDE NOT YET APPROVED ARTICLES AND COMMENTS
     if (doc.approved && doc.approved !== true) {
@@ -53,10 +59,6 @@ export const getOne = (Model) =>
 
     // REMOVE MY_ARTICLES FIELD FOR USERS WITH ROLE "USER"
     if (doc?.role === "user") delete doc.myArticles;
-
-    if (!doc) {
-      return next(new AppError(`No ${docName} found with that ID`, 404));
-    }
 
     res.status(200).json({
       status: "success",

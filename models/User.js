@@ -216,6 +216,10 @@ class User extends Parent {
     return this.model.findById(id).select(options);
   }
 
+  getByUsername(username, options = {}) {
+    return this.model.findOne({ username }).select(options);
+  }
+
   name() {
     return "user";
   }

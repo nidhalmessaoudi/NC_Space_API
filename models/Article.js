@@ -154,6 +154,10 @@ class Article extends Parent {
     this.model = mongoose.model("Article", articleSchema);
   }
 
+  getBySlug(slug) {
+    return this.model.findOne({ slug });
+  }
+
   getStats(by) {
     return this.model.aggregate([
       {

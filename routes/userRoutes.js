@@ -25,6 +25,9 @@ router.get("/auth/google", oauthController.getGoogleRedirect);
 router.get("/facebook-login", oauthController.getFbLogin);
 router.get("/auth/facebook", oauthController.getFbRedirect);
 
+// GET ANY USER
+router.get("/public/:username", userController.getPublicUser);
+
 // PROTECT ALL ROUTES AFTER THIS MIDDLEWARE
 router.use(authController.protect);
 

@@ -43,7 +43,7 @@ router
   .route("/monthly-stats/:year")
   .get(protect, restrictTo("admin"), articleController.getMongthlyStats);
 
-// GET, UPDATE AND DELETE ONE ARTICLE
+// GET, UPDATE AND DELETE ONE ARTICLE BY ID
 router
   .route("/:id")
   .get(articleController.getArticle)
@@ -53,5 +53,8 @@ router
     articleController.updateArticle
   )
   .delete(protect, restrictTo("admin"), articleController.deleteArticle);
+
+// GET ONE ARTICLE BY SLUG
+router.get("/slug/:slug", articleController.getArticleBySlug);
 
 export default router;
