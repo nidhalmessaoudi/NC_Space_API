@@ -30,9 +30,15 @@ app.use(
 app.use(helmet());
 
 const limiter = rateLimit({
-  max: 100,
+  max: 500,
   windowMs: 10 * 60 * 1000,
   message: "Too many requests from this IP, please try again in 10 mins!",
+  handler: function (req, res) {
+    res.status(429).json({
+      status: "fail",
+      message: this.message,
+    });
+  },
 });
 
 app.use("/api", limiter);
