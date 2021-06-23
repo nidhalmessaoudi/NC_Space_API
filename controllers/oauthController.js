@@ -3,16 +3,40 @@ import { stringify } from "query-string";
 import { google } from "googleapis";
 
 import User from "../models/User.js";
-import { createAndSendToken } from "./authController.js";
+import { signToken, createJWTCookie } from "./authController.js";
 import catchAsync from "../utils/catchAsync.js";
-import AppError from "../utils/AppError.js";
 
 // HELPER FUNCTIONS
-const denyError = (next) => {
-  next(new AppError("You haven't authorize us. Please try again", 400));
+const getRedirectUrl = () => {
+  // CLIENT APP REDIRECT URL
+  return process.env.NODE_ENV === "development"
+    ? process.env.DEV_CLIENT_URL
+    : process.env.PROD_CLIENT_URL;
+};
+const denyError = (res) => {
+  const redirectUrl = getRedirectUrl();
+  res
+    .status(400)
+    .redirect(
+      `${redirectUrl}?error_message=${encodeURIComponent(
+        "You haven't authorize us! Please try again."
+      )}`
+    );
+};
+
+const handleUnexpectedErr = (res) => {
+  const redirectUrl = getRedirectUrl();
+  res
+    .status(400)
+    .redirect(
+      `${redirectUrl}?error_message=${encodeURIComponent(
+        "Something went wrong during the login process! Please try again later."
+      )}`
+    );
 };
 
 const createAndSendUserFromOAuth = async (res, user, from, next) => {
+  const redirectUrl = getRedirectUrl();
   // CHECK IF THE USER ALREADY EXISTS IN THE DATABASE
   const userExists = await User.get(undefined, {
     from,
@@ -22,20 +46,27 @@ const createAndSendUserFromOAuth = async (res, user, from, next) => {
   // IF EXISTS => CREATE AND SEND TOKEN TO THE CLIENT (MEANS LOGIN USER)
   // IF NO => SO CREATE THE NEW USER AND DO THE STEPS UP
   if (userExists) {
-    createAndSendToken(res, userExists, 200);
+    const token = signToken(userExists.id);
+    createJWTCookie(res, token);
+    res
+      .status(200)
+      .redirect(
+        `${redirectUrl}?message=${encodeURIComponent(
+          `Welcome back ${userExists.name}!`
+        )}`
+      );
   } else {
     const sameEmailUser = await User.get(undefined, {
       email: user.email,
     });
     if (sameEmailUser) {
-      return next(
-        new AppError(
-          `You already joined using ${
-            sameEmailUser.from ? sameEmailUser.from : "email"
-          }!`,
-          400
-        )
-      );
+      const resMessage = `You already joined using ${
+        sameEmailUser.from ? sameEmailUser.from : "email"
+      }!`;
+      res
+        .status(400)
+        .redirect(`${redirectUrl}?message=${encodeURIComponent(resMessage)}`);
+      return;
     }
     const newUser = {
       email: user.email,
@@ -48,7 +79,15 @@ const createAndSendUserFromOAuth = async (res, user, from, next) => {
       [from === "google" ? "googleId" : "facebookId"]: user.id,
     };
     const savedUser = await User.save(newUser, { validateBeforeSave: false });
-    createAndSendToken(res, savedUser, 200);
+    const token = signToken(savedUser.id);
+    createJWTCookie(res, token);
+    res
+      .status(200)
+      .redirect(
+        `${redirectUrl}?message=${encodeURIComponent(
+          `Hello and thank you for joing us ${savedUser.name}!`
+        )}`
+      );
   }
 };
 
@@ -93,9 +132,9 @@ export const getGoogleLogin = (req, res, next) => {
 export const getGoogleRedirect = catchAsync(async (req, res, next) => {
   const oauth2Client = setupOAuthClient();
 
-  if (req.query.error) {
-    return denyError(next);
-  } else {
+  if (req.query.error) return denyError(res);
+  if (req.query.error_code) return handleUnexpectedErr(res);
+  else {
     // GET ACCESS AND ID TOKEN
     const { tokens } = await oauth2Client.getToken(req.query.code);
 
@@ -138,9 +177,9 @@ export const getFbLogin = (req, res, next) => {
 };
 
 export const getFbRedirect = catchAsync(async (req, res, next) => {
-  if (req.query.error) {
-    return denyError(next);
-  } else {
+  if (req.query.error) return denyError(res);
+  if (req.query.error_code) return handleUnexpectedErr(res);
+  else {
     const { data } = await axios({
       url: "https://graph.facebook.com/v10.0/oauth/access_token",
       method: "get",

@@ -12,7 +12,7 @@ class Article extends Parent {
         title: {
           type: String,
           required: [true, "An article must have a title!"],
-          unique: true,
+          unique: [true, "This title is already used!"],
           trim: true,
           maxlength: [
             102,

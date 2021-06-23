@@ -8,12 +8,6 @@ import AppError from "../utils/AppError.js";
 import sendEmail from "../utils/email.js";
 import encrypt from "../utils/encrypt.js";
 
-const signToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
-  });
-};
-
 const generateRandomToken = async (user, expireTime) => {
   const randomToken = await user.createToken(expireTime);
   await User.save(user, { validateBeforeSave: false });
@@ -48,14 +42,13 @@ const sendRandomToken = async (user, subject, message, next) => {
   }
 };
 
-export const createAndSendToken = (
-  res,
-  user,
-  statusCode,
-  state = undefined
-) => {
-  const token = signToken(user.id);
+export const signToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  });
+};
 
+export const createJWTCookie = (res, token) => {
   const cookieOptions = {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
@@ -65,6 +58,12 @@ export const createAndSendToken = (
 
   if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
   res.cookie("jwt", token, cookieOptions);
+};
+
+const createAndSendToken = (res, user, statusCode, state = undefined) => {
+  const token = signToken(user.id);
+
+  createJWTCookie(res, token);
 
   user.password = undefined;
 

@@ -18,11 +18,14 @@ class User extends Parent {
           type: String,
           required: [true, "Please tell us your name!"],
         },
-        username: String,
+        username: {
+          type: String,
+          unique: [true, "A username must be unique!"],
+        },
         email: {
           type: String,
           required: [true, "Please provide your email!"],
-          unique: true,
+          unique: [true, "This email is already used!"],
           lowercase: true,
           trim: true,
           validate: [validator.isEmail, "Please provide a valid email!"],
@@ -78,8 +81,18 @@ class User extends Parent {
     );
 
     // CREATE USERNAME MIDDLEWARE
-    userSchema.pre("save", function (next) {
-      this.username = slugify(this.name, { replacement: "", lower: true });
+    userSchema.pre("save", async function (next) {
+      const User = this.constructor;
+      let username = slugify(this.name, {
+        replacement: "",
+        lower: true,
+      });
+      const isTheSame = await User.find({ username });
+      if (isTheSame)
+        username =
+          this.name.toLowerCase().replace(" ", "_") +
+          Math.random().toString().substr(2, 3);
+      this.username = username;
       next();
     });
 

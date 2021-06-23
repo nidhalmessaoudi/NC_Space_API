@@ -1,5 +1,6 @@
 import catchAsync from "../utils/catchAsync.js";
 import AppError from "../utils/AppError.js";
+import User from "../models/User.js";
 
 export const getAll = (Model) =>
   catchAsync(async (req, res, next) => {
@@ -32,7 +33,7 @@ export const getOne = (Model) =>
     const docName = Model.name();
     const initDoc = await Model.get(req.params.id);
 
-    if (!doc) {
+    if (!initDoc) {
       return next(new AppError(`No ${docName} found with that ID`, 404));
     }
 
@@ -77,6 +78,19 @@ export const createOne = (Model) =>
     const docName = Model.name();
 
     const newDoc = await Model.create(req.body);
+
+    if (docName === "comment") {
+      const user = await User.getById(req.body.id);
+      if (user?.role === "admin") newDoc.author = user;
+      else {
+        res.status(201).json({
+          status: "success",
+          message:
+            "Your comment has been added successfully and currently pending approval.",
+        });
+        return;
+      }
+    }
 
     res.status(201).json({
       status: "success",

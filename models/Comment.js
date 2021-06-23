@@ -50,7 +50,7 @@ class Comment extends Parent {
     commentSchema.statics.calcComments = async function (articleId) {
       const stats = await this.aggregate([
         {
-          $match: { article: articleId },
+          $match: { article: articleId, approved: true },
         },
         {
           $group: {
