@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 import Parent from "./Parent.js";
+import User from "./User.js";
 
 class Follower extends Parent {
   constructor() {
@@ -41,6 +42,59 @@ class Follower extends Parent {
       });
 
       next();
+    });
+
+    followerSchema.statics.calcFollowersAndFollowings = async function (
+      followerId,
+      followedId
+    ) {
+      const followersStats = await this.aggregate([
+        {
+          $match: { follower: followerId },
+        },
+        {
+          $group: {
+            _id: "$follower",
+            nFollowings: { $sum: 1 },
+          },
+        },
+      ]);
+
+      const followingsStats = await this.aggregate([
+        {
+          $match: { followed: followedId },
+        },
+        {
+          $group: {
+            _id: "$followed",
+            nFollowers: { $sum: 1 },
+          },
+        },
+      ]);
+
+      await User.update(followerId, {
+        numberOfFollowings: followersStats[0]?.nFollowings || 0,
+      });
+
+      await User.update(followedId, {
+        numberOfFollowers: followingsStats[0]?.nFollowers || 0,
+      });
+    };
+
+    followerSchema.post("save", async function () {
+      this.constructor.calcFollowersAndFollowings(this.follower, this.followed);
+    });
+
+    followerSchema.pre(/^findOneAnd/, async function (next) {
+      this.follower = await this.findOne();
+      next();
+    });
+
+    followerSchema.post(/^findOneAnd/, async function () {
+      this.follower.constructor.calcFollowersAndFollowings(
+        this.follower,
+        this.followed
+      );
     });
 
     this.model = mongoose.model("Follower", followerSchema);

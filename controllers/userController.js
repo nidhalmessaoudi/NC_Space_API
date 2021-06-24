@@ -28,6 +28,8 @@ export const getPublicUser = catchAsync(async (req, res, next) => {
     email: 1,
     photo: 1,
     role: 1,
+    numberOfFollowers: 1,
+    numberOfFollowings: 1,
   });
 
   if (!user)

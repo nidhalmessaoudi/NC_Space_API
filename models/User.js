@@ -36,6 +36,14 @@ class User extends Parent {
           enum: ["user", "writer", "admin"],
           default: "user",
         },
+        numberOfFollowers: {
+          type: Number,
+          default: 0,
+        },
+        numberOfFollowings: {
+          type: Number,
+          default: 0,
+        },
         password: {
           type: String,
           required: [true, "Please provide a password"],
