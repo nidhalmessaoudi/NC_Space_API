@@ -22,7 +22,7 @@ const app = express();
 // GLOBAL MIDDLEWARES
 app.use(
   cors({
-    origin: "http://localhost:8080",
+    origin: ["http://localhost:8080", "http://localhost:3000"],
     credentials: true,
   })
 );
